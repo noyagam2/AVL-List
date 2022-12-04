@@ -173,8 +173,8 @@ class AVLTreeList(object):
     def __init__(self):
         self.size = 0
         self.root = None
-        self.min = None
-        self.max = None
+        self.first = None
+        self.last = None
 
     # add your fields here
 
@@ -195,8 +195,8 @@ class AVLTreeList(object):
 
         """
     def successor(self, node):
-        if node.equals(self.max):
-            return self.max.right
+        if node.equals(self.last):
+            return self.last.right
         if node.right.height == -1:
             father = node.parent
             while father.right.equals(node):
@@ -217,8 +217,8 @@ class AVLTreeList(object):
 
            """
     def predecessor(self, node):
-        if node.equals(self.min):
-            return self.max.left
+        if node.equals(self.first):
+            return self.last.left
         if node.left.height == -1:
             father = node.parent
             while father.left.equals(node):
@@ -242,18 +242,18 @@ class AVLTreeList(object):
 
     def retrieve(self, i):
         if i == self.size - 1:
-            return self.max
+            return self.last
         elif i == 0:
-            return self.min
+            return self.first
         elif i > self.size / 2:
-            node = None
+            node = self.last
             for i in range(self.size - 1, i , -1):
-                node = self.predecessor(self.max)
+                node = self.predecessor(node)
             return node
         else:
-            node = None
+            node = self.first
             for i in range(i):
-                node = self.predecessor(self.max)
+                node = self.successor(node)
             return node
 
 
@@ -275,8 +275,8 @@ class AVLTreeList(object):
         node = AVLNode(val)
         node.makeNodeLeaf()
         if i == self.size-1:
-            self.max.setRight(node)
-            self.max = node
+            self.last.setRight(node)
+            self.last = node
         elif i< self.size-1:
             temp = self.retrieve(i+1)
             if temp.getLeft().getHeight()==-1:
