@@ -24,13 +24,19 @@ class AVLNode(object):
 		@param value: data of your node
 		"""
 
-		def __init__(self, value):
-			self.value = value
+		def __init__(self, value, virtual):
 			self.left = None
 			self.right = None
 			self.parent = None
-			self.height = 0
-			self.size = 1
+			if not virtual:
+				self.value = value
+				self.height = 0
+				self.size = 1
+			else:
+				self.height = -1
+				self.size=0
+
+
 
 		"""returns the left child
 		@rtype: AVLNode
