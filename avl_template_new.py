@@ -188,13 +188,13 @@ class AVLTreeList(object):
 
     def successor(self, node):
         """returns the successor of node or a virtual node if node is max, complexity O(logn)
-               @:type node: AVLNode
-               @pre: node belongs to this AVLTreeList
-               @:rtype AVLNode
-               @:returns the successor of given node in the tree
-
-               """
-        if node.equals(self.last_item):
+         @pre: node belongs to this AVLTreeList
+         :type node: AVLNode
+         :rtype : AVLNode
+         :param node: the node we want to find the successor for
+         :returns the successor of given node in the tree
+        """
+        if node is self.last_item:
             return self.last_item.right
         if node.right.height == -1:
             father = node.parent
@@ -210,13 +210,13 @@ class AVLTreeList(object):
 
     def predecessor(self, node):
         """returns the predecessor of node or a virtual node if node is min, complexity O(logn)
-                   @:type node: AVLNode
-                   @pre: node belongs to this AVLTreeList
-                   @:rtype AVLNode
-                   @:returns the predecessor of given node in the tree
-
-                   """
-        if node.equals(self.first_item):
+        @pre: node belongs to this AVLTreeList
+        :type node: AVLNode
+        :rtype: AVLNode
+        :param node: the node we want to find the predecessor for
+        :returns the predecessor of given node in the tree
+        """
+        if node is self.first_item:
             return self.last_item.left
         if node.left.height == -1:
             father = node.parent
@@ -363,6 +363,7 @@ class AVLTreeList(object):
         """
         Handles the insert of the first node in the tree
         :param node: the to-be root node
+        :type node: AVLNode
         """
         self.root = node
         self.last_item = node
