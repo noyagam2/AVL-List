@@ -45,6 +45,7 @@ class AVLNode(object):
         right_virtual_son.parent = self
         self.left = left_virtual_son
         left_virtual_son.parent = self
+        self.height = 0
 
     """returns the left child
     @rtype: AVLNode
@@ -144,7 +145,7 @@ class AVLNode(object):
     """
 
     def __str__(self) -> str:
-        return "value: " + self.value + " height: " + str(self.height) + " size: " + str(self.size)
+        return str(self.value)
 
     def isRealNode(self):
         if self.height == -1:
@@ -171,8 +172,8 @@ class AVLTreeList(object):
         root = AVLNode("")
         root.initVirtualValues()
         self.root = root
-        self.first = root
-        self.last = root
+        self.first_item = root
+        self.last_item = root
 
     # add your fields here
 
@@ -193,8 +194,8 @@ class AVLTreeList(object):
                @:returns the successor of given node in the tree
 
                """
-        if node.equals(self.last):
-            return self.last.right
+        if node.equals(self.last_item):
+            return self.last_item.right
         if node.right.height == -1:
             father = node.parent
             while father.right.equals(node):
@@ -215,8 +216,8 @@ class AVLTreeList(object):
                    @:returns the predecessor of given node in the tree
 
                    """
-        if node.equals(self.first):
-            return self.last.left
+        if node.equals(self.first_item):
+            return self.last_item.left
         if node.left.height == -1:
             father = node.parent
             while father.left.equals(node):
@@ -243,9 +244,9 @@ class AVLTreeList(object):
         if not node.isRealNode():  # list is empty
             return None
         if i == self.size - 1:
-            return self.last
+            return self.last_item
         elif i == 0:
-            return self.first
+            return self.first_item
         while i >= 0:
             if i == node.getLeft().getSize():
                 return node
@@ -255,7 +256,107 @@ class AVLTreeList(object):
                 i = i - node.getLeft().getSize() - 1
                 node = node.getRight()
 
-    def rebalanceTree(self):
+    def rotateMinus2Minus1(self, node):
+        """
+        Handles the rotation where a node Balance Factor is -2, and it's right son's
+        Balance Factor is -1
+
+        (node)
+              \
+               \
+                (r_son)
+                   \
+                    \
+                     (tree)
+
+        @pre: BF(node) == -2 and BF(node.getRight()) == -1
+        :param node: the "AVL criminal"
+        :type node: AVLNode
+        """
+
+        direction = "r" if node.getParent().getRight() is node else "l"
+        right_son = node.getRight()
+        node.setRight(right_son.getLeft())
+        node.getRight().setParent(node)
+        right_son.setLeft(node)
+        right_son.setParent(node.getParent())
+        if direction == "r":
+            right_son.getParent().setRight(right_son)
+        else:
+            right_son.getParent().setLeft(right_son)
+        node.setParent(right_son)
+
+    def rotateMinus2Plus1(self, node):
+        """
+        Handles the rotation where a node Balance Factor is -2, and it's right son's
+        Balance Factor is +1
+
+       (node)
+             \
+              \
+               (r_son)
+              /
+            /
+        (tree)
+
+         @pre: BF(node)== -2 and BF(node.getRight())== 1
+        :param node: the "AVL criminal"
+        :type node: AVLNode
+        """
+
+        return
+
+    def rotatePlus2Minus1(self, node):
+        """
+        Handles the rotation where a node Balance Factor is +2, and it's left son's
+        Balance Factor is -1
+
+               (node)
+              /
+            /
+        (l_son)
+           \
+            \
+             (tree)
+
+
+        @pre: BF(node) == 2 and BF(node.getLeft()) == -1
+        :param node: the "AVL criminal"
+        :type node: AVLNode
+        """
+        return
+
+    def rotatePlus2Plus1(self, node):
+        """
+        Handles the rotation where a node Balance Factor is +2, and it's left son's
+        Balance Factor is +1
+
+                       (node)
+                      /
+                    /
+                (l_son)
+              /
+            /
+        (tree)
+
+        @pre: BF(node) == 2 and BF(node.getLeft()) == 1
+        :param node: the "AVL criminal"
+        :type node: AVLNode
+        """
+
+        direction = "r" if node.getParent().getRight() is node else "l"
+        left_son = node.getLeft()
+        node.setLeft(left_son.getRight())
+        node.getLeft().setParent(node)
+        left_son.setRight(node)
+        left_son.setParent(node.getParent())
+        if direction == "r":
+            left_son.getParent().setRight(left_son)
+        else:
+            left_son.getParent().setLeft(left_son)
+        node.setParent(left_son)
+
+    def balanceTree(self):
         return
 
     def insertFirstNode(self, node):
@@ -264,8 +365,8 @@ class AVLTreeList(object):
         :param node: the to-be root node
         """
         self.root = node
-        self.last = node
-        self.first = node
+        self.last_item = node
+        self.first_item = node
         self.size = 1
 
     """inserts val at position i in the list
@@ -284,19 +385,19 @@ class AVLTreeList(object):
         node.makeNodeLeaf()
         if self.size == 0:
             self.insertFirstNode(node)
+            return 0
+        current_i = self.retrieve(i)
+        if current_i.getLeft().isRealNode() == False:
+            current_i.setLeft(node)
         else:
-            current_i = self.retrieve(i)
-            if current_i.getLeft().isRealNode() == False:
-                current_i.setLeft(node)
-            else:
-                pred = self.predecessor(current_i)
-                pred.setRight(node)
-            if i == 0:
-                self.first = node
-            elif i == self.size:
-                self.last = node
-            self.size += 1
-            self.rebalanceTree()
+            pred = self.predecessor(current_i)
+            pred.setRight(node)
+        if i == 0:
+            self.first_item = node
+        elif i == self.size:
+            self.last_item = node
+        self.size += 1
+        return self.balanceTree()
 
     """deletes the i'th item in the list
 
@@ -317,7 +418,7 @@ class AVLTreeList(object):
     """
 
     def first(self):
-        return self.first
+        return self.first_item
 
     """returns the value of the last item in the list
 
@@ -326,7 +427,7 @@ class AVLTreeList(object):
     """
 
     def last(self):
-        return self.last
+        return self.last_item
 
     """returns an array representing list 
 
@@ -336,7 +437,7 @@ class AVLTreeList(object):
 
     def listToArray(self):
         array = []
-        node = self.first
+        node = self.first_item
         for i in range(self.size):
             array.append(str(node))
 
@@ -388,10 +489,12 @@ class AVLTreeList(object):
     """
 
     def search(self, val):
-        node = self.first
-        while node.getValue != val:
-            node = node.Succesor
-        return node
+        node = self.first_item
+        count = 0
+        while node.isRealNode() and node.getValue != val:
+            count += 1
+            node = self.successor(node)
+        return count if node.isRealNode() else -1
 
     """returns the root of the tree representing the list
 
@@ -400,6 +503,6 @@ class AVLTreeList(object):
     """
 
     def getRoot(self):
-        if self.root.height == -1:
+        if not self.root.isRealNode():
             return None
         return self.root
