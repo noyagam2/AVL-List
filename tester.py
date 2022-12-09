@@ -24,7 +24,16 @@ class MyTestCase(unittest.TestCase):
         self.assertFalse(node1.getLeft().isRealNode())
         self.assertTrue(node4.getParent() is None)
 
-    def test_first_last(self,my_list):
+    def init_list(self, my_list):
+        my_list.insert(0, 5)
+        my_list.insert(1, 2)
+        my_list.insert(0, 8)
+        my_list.insert(2, 14)
+        my_list.insert(2, -7)
+
+    def test_first_last(self):
+        my_list = avl_template_new.AVLTreeList()
+        self.init_list(my_list)
         self.assertEqual(int(my_list.first().getValue()), 8, "error 1  in first")
         self.assertEqual(int(my_list.last().getValue()), 2, "error 1 in last")
 
@@ -33,7 +42,7 @@ class MyTestCase(unittest.TestCase):
 
         rotation_num = my_list.insert(0, 5)
         self.assertEqual(int(my_list.retrieve(0).getValue()), 5, "Error in 1st insert/retrieve")
-        self.assertEqual(rotation_num,0)
+        self.assertEqual(rotation_num, 0)
 
         rotation_num = my_list.insert(1, 2)
         self.assertEqual(int(my_list.retrieve(1).getValue()), 2, "Error in 2nd insert/retrieve")
@@ -51,25 +60,32 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(int(my_list.retrieve(2).getValue()), 14, "Error in 5th insert/retrieve")
         self.assertEqual(rotation_num, -1)
 
-    def test_search_delete(self, my_list):
+    def test_search_delete(self):
+        my_list = avl_template_new.AVLTreeList()
+        self.init_list(my_list)
         self.assertEqual(int(my_list.search(3)), -1, "Error 1 in search")
         self.assertEqual(int(my_list.search(-7)), 3, "Error 2 in search")
 
         rotation_num = my_list.delete(3)
-        self.assertEquals(rotation_num,-1)
+        self.assertEquals(rotation_num, -1)
         self.assertEqual(int(my_list.length()), 4, "error in delete")
         self.assertEqual(int(my_list.retrieve(3).getValue()), 2, " error in delete")
         self.assertEqual(int(my_list.search(-7)), -1, "Error 3 in search/delete")
 
-    def test_list_to_array(self,my_list):
+    def test_list_to_array(self):
+        my_list = avl_template_new.AVLTreeList()
+        self.init_list(my_list)
         array = [8, 5, 14, -7, 2]
         array2 = my_list.listToArray()
         for i in range(len(array)):
             self.assertEqual(array2[i], array[i], "error in list to array,  index " + str(i))
 
-    def test_sorted_permutation(self,my_list):
+    def test_sorted_permutation(self):
+        my_list = avl_template_new.AVLTreeList()
+        self.init_list(my_list)
         my_list_sorted = my_list.sort()
         sorted2 = avl_template_new.AVLTreeList()
+        sorted2.insert(0, -7)
         sorted2.insert(0, 2)
         sorted2.insert(0, 5)
         sorted2.insert(0, 8)
@@ -86,23 +102,9 @@ class MyTestCase(unittest.TestCase):
                    int(sorted2.retrieve(i).getValue())
         self.assertFalse(bool, "Error in permutation")
 
-    def test_List(self):
-        self.test_insert_retrieve()
+    def test_length(self):
         my_list = avl_template_new.AVLTreeList()
-        my_list.insert(0, 5)
-        my_list.insert(1, 2)
-        my_list.insert(0, 8)
-        my_list.insert(2, -7)
-        my_list.insert(2, 14)
         self.assertEqual(int(my_list.length()), 5, "error in length")
-        self.test_first_last(my_list)
-        self.test_list_to_array(my_list)
-        self.test_search_delete(my_list)
-        self.test_sorted_permutation(my_list)
-
-
-
-
 
 
 if __name__ == '__main__':
