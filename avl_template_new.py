@@ -35,8 +35,8 @@ class AVLNode(object):
 
          :returns: A legal node with 2 virtual sons
          """
-
     def makeNodeLeaf(self):
+
         right_vson = AVLNode("")
         left_vson = AVLNode("")
         right_vson.initVirtualValues()
@@ -45,6 +45,7 @@ class AVLNode(object):
         right_vson.parent = self
         self.left = left_vson
         left_vson.parent = self
+
 
     """returns the left child
     @rtype: AVLNode
@@ -239,22 +240,27 @@ class AVLTreeList(object):
     """
 
     def retrieve(self, i):
+        node = self.getRoot()
+        if node is None:
+            return None
         if i == self.size - 1:
             return self.last
         elif i == 0:
             return self.first
-        elif i > self.size / 2:
-            node = self.last
-            for i in range(self.size - 1, i, -1):
-                node = self.predecessor(node)
-            return node
-        else:
-            node = self.first
-            for i in range(i):
-                node = self.successor(node)
-            return node
+        while i >= 0:
+            if i == node.getLeft().getSize():
+                return node
+            elif i < node.getLeft().getSize():
+                node = node.getLeft()
+            elif i > node.getLeft().getSize():
+                i = i - node.getLeft().getSize() - 1
+                node = node.getRight()
 
-    """inserts val at position i in the list
+
+
+
+
+"""inserts val at position i in the list
 
     @type i: int
     @pre: 0 <= i <= self.length()
@@ -303,7 +309,7 @@ class AVLTreeList(object):
     """
 
     def first(self):
-        return None
+        return self.first
 
     """returns the value of the last item in the list
 
@@ -312,7 +318,7 @@ class AVLTreeList(object):
     """
 
     def last(self):
-        return None
+        return self.last
 
     """returns an array representing list 
 
@@ -321,6 +327,74 @@ class AVLTreeList(object):
     """
 
     """returns an array representing list 
+    def listToArray(self):
+        return None
+
+    """returns the size of the list
+
+    @rtype: int
+    @returns: the size of the list
+    """
+
+    def length(self):
+        return None
+
+    """sort the info values of the list
+
+    @rtype: list
+    @returns: an AVLTreeList where the values are sorted by the info of the original list.
+    """
+
+    def sort(self):
+        return None
+
+    """permute the info values of the list
+
+    @rtype: list
+    @returns: an AVLTreeList where the values are permuted randomly by the info of the original list. ##Use Randomness
+    """
+
+    def permutation(self):
+        return None
+
+    """concatenates lst to self
+
+    @type lst: AVLTreeList
+    @param lst: a list to be concatenated after self
+    @rtype: int
+    @returns: the absolute value of the difference between the height of the AVL trees joined
+    """
+
+    def concat(self, lst):
+        return None
+
+    """searches for a *value* in the list
+
+    @type val: str
+    @param val: a value to be searched
+    @rtype: int
+    @returns: the first index that contains val, -1 if not found.
+    """
+
+    def search(self, val):
+        node = self.first
+        while node.getValue != val:
+            node = node.Succesor
+        return node
+
+    """returns the root of the tree representing the list
+
+    @rtype: AVLNode
+    @returns: the root, None if the list is empty
+    """
+
+    def getRoot(self):
+        if self.root.height==-1:
+            return None
+        return self.root
+
+
+
 
        @rtype: list
        @returns: a list of strings representing the data structure
