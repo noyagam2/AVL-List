@@ -35,17 +35,16 @@ class AVLNode(object):
 
          :returns: A legal node with 2 virtual sons
          """
-    def makeNodeLeaf(self):
 
+    def makeNodeLeaf(self):
         right_vson = AVLNode("")
         left_vson = AVLNode("")
         right_vson.initVirtualValues()
         left_vson.initVirtualValues()
-        self.right=right_vson
-        right_vson.parent=self
-        self.left=left_vson
-        left_vson.parent=self
-
+        self.right = right_vson
+        right_vson.parent = self
+        self.left = left_vson
+        left_vson.parent = self
 
     """returns the left child
     @rtype: AVLNode
@@ -99,8 +98,7 @@ class AVLNode(object):
 
     def setLeft(self, node):
         self.left = node
-        node.parent=self
-
+        node.parent = self
 
     """sets right child
 
@@ -112,7 +110,6 @@ class AVLNode(object):
         self.right = node
         node.parent = self
 
-
     """sets parent
 
     @type node: AVLNode
@@ -121,7 +118,6 @@ class AVLNode(object):
 
     def setParent(self, node):
         self.parent = node
-
 
     """sets value
 
@@ -132,7 +128,6 @@ class AVLNode(object):
     def setValue(self, value):
         self.value = value
 
-
     """sets the balance factor of the node
 
     @type h: int
@@ -141,7 +136,6 @@ class AVLNode(object):
 
     def setHeight(self, h):
         self.height = h
-
 
     """returns whether self is not a virtual node 
 
@@ -196,6 +190,7 @@ class AVLTreeList(object):
         @:returns the successor of given node in the tree
 
         """
+
     def successor(self, node):
         if node.equals(self.last):
             return self.last.right
@@ -218,6 +213,7 @@ class AVLTreeList(object):
            @:returns the predecessor of given node in the tree
 
            """
+
     def predecessor(self, node):
         if node.equals(self.first):
             return self.last.left
@@ -249,7 +245,7 @@ class AVLTreeList(object):
             return self.first
         elif i > self.size / 2:
             node = self.last
-            for i in range(self.size - 1, i , -1):
+            for i in range(self.size - 1, i, -1):
                 node = self.predecessor(node)
             return node
         else:
@@ -257,7 +253,6 @@ class AVLTreeList(object):
             for i in range(i):
                 node = self.successor(node)
             return node
-
 
     """inserts val at position i in the list
 
@@ -270,25 +265,24 @@ class AVLTreeList(object):
     @returns: the number of rebalancing operation due to AVL rebalancing
     """
 
-    def rebalanceInsert(self):
+    def rebalanceTree(self):
         return
 
     def insert(self, i, val):
         node = AVLNode(val)
         node.makeNodeLeaf()
-        if i == self.size-1:
-            self.last.setRight(node)
-            self.last = node
-        elif i< self.size-1:
-            temp = self.retrieve(i+1)
-            if temp.getLeft().getHeight()==-1:
-                temp.setLeft(node)
+        current_i = self.retrieve(i)
+        if current_i.getLeft().isRealNode() == False:
+            current_i.setLeft(node)
         else:
-            temp = self.retrieve(i - 1)
-            temp.setRight(node)
-        self.rebalanceInsert()
-        self.size+=1
-
+            pred = self.predecessor(current_i)
+            pred.setRight(node)
+        if i == 0:
+            self.first = node
+        elif i == self.size:
+            self.last = node
+        self.size += 1
+        self.rebalanceTree()
 
     """deletes the i'th item in the list
 
@@ -347,7 +341,7 @@ class AVLTreeList(object):
     """
 
     def length(self):
-        return None
+        return self.size
 
     """sort the info values of the list
 
@@ -397,5 +391,3 @@ class AVLTreeList(object):
 
     def getRoot(self):
         return None
-
-
