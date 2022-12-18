@@ -62,7 +62,7 @@ class MyTestCase(unittest.TestCase):
 
         rotation_num = my_list.insert(5, 25)
         self.assertEqual(int(my_list.retrieve(5).getValue()), 25, "Error in 6th insert/retrieve")
-        self.assertEqual(0, rotation_num)
+        self.assertEqual(1, rotation_num)
 
         rotation_num = my_list.insert(6, -13)
         self.assertEqual(int(my_list.retrieve(6).getValue()), -13, "Error in 7th insert/retrieve")

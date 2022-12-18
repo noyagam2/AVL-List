@@ -286,7 +286,6 @@ class AVLTreeList(object):
         direction = "r" if node.getParent().getRight() is node else "l"
         right_son = node.getRight()
         node.setRight(right_son.getLeft())
-        node.getRight().setParent(node)
         right_son.setLeft(node)
         right_son.setParent(node.getParent())
         if direction == "r":
@@ -357,11 +356,11 @@ class AVLTreeList(object):
         """
 
         direction = "r" if node.getParent().getRight() is node else "l"
+        tmp = node.getParent()
         left_son = node.getLeft()
         node.setLeft(left_son.getRight())
-        node.getLeft().setParent(node)
         left_son.setRight(node)
-        left_son.setParent(node.getParent())
+        left_son.setParent(tmp)
         if direction == "r":
             left_son.getParent().setRight(left_son)
         else:
@@ -445,7 +444,7 @@ class AVLTreeList(object):
             self.last_item.setRight(node)
             self.last_item = node
         elif i == 0:
-            prev_height = self.last_item.computeHeight()
+            prev_height = self.first_item.computeHeight()
             self.first_item.setLeft(node)
             self.first_item = node
         else:
@@ -453,10 +452,16 @@ class AVLTreeList(object):
             if current_i.getLeft().isRealNode() == False:
                 prev_height = current_i.computeHeight()
                 current_i.setLeft(node)
+                h_right = current_i.getLeft().getHeight()
+                h_left = current_i.getRight().getHeight()
+                current_i.setHeight(max(h_right, h_left) + 1)
             else:
                 pred = self.predecessor(current_i)
                 prev_height = pred.computeHeight()
                 pred.setRight(node)
+                h_right = pred.getLeft().getHeight()
+                h_left = pred.getRight().getHeight()
+                pred.setHeight(max(h_right, h_left) + 1)
         self.size += 1
         rotations_num = 0
         if self.need_balance(node.getParent(), prev_height):
@@ -476,12 +481,10 @@ class AVLTreeList(object):
     def deleteNodeHasOneChild(self, node):
         if node.getRight().isRealnode():
             node.getParent().setRight(node.getRight())
-            node.getRight().setparent(node.getParent())
             node.setRight(None)
             node.setParent(None)
         else:
             node.getParent().setLeft(node.getleft())
-            node.getLeft().setparent(node.getParent())
             node.setLeft(None)
             node.setParent(None)
 
@@ -489,9 +492,7 @@ class AVLTreeList(object):
         successor = self.successor(node)
         self.deleteNodeHasOneChild(successor)
         successor.setRight(node.getRight())
-        node.getRight().setparent(successor)
         successor.setLeft(node.getLeft())
-        node.getLeft().setparent(successor)
         successor.setParent(node.getParent())
         direction = "r" if node.getParent().getRight() is node else "l"
         if direction == "r":
@@ -502,12 +503,12 @@ class AVLTreeList(object):
         node.setRight(None)
         node.setLeft(None)
 
+
     def delete(self, i):
         node = self.retrieve(i)
         start_balance = self.successor(node).getParent()
         if node.isLeaf():
-            node.getParent().makeNodeLeaf()
-            node.setParent(None)
+            node.initVirtualValues()
         elif node.getLeft().isRealnode() and node.getRight().isRealNode():
             self.deleteNodeHasTwoChildren(node)
         else:  # only have one child
