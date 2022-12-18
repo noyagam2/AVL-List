@@ -283,16 +283,20 @@ class AVLTreeList(object):
         :type node: AVLNode
         """
 
-        direction = "r" if node.getParent().getRight() is node else "l"
+        direction = "N"
+        parent_of_node = node.getParent()
+        if parent_of_node is not None:
+            direction = "r" if parent_of_node.getRight() is node else "l"
         right_son = node.getRight()
         node.setRight(right_son.getLeft())
         right_son.setLeft(node)
-        right_son.setParent(node.getParent())
+        right_son.setParent(parent_of_node)
         if direction == "r":
             right_son.getParent().setRight(right_son)
-        else:
+        elif direction == "l":
             right_son.getParent().setLeft(right_son)
-        node.setParent(right_son)
+        else:
+            self.root = right_son
 
     def rightThenLeftRotation(self, node):
         """
@@ -354,8 +358,10 @@ class AVLTreeList(object):
         :param node: the "AVL criminal"
         :type node: AVLNode
         """
-
-        direction = "r" if node.getParent().getRight() is node else "l"
+        direction = "N"
+        tmp = node.getParent()
+        if tmp is not None:
+            direction = "r" if tmp.getRight() is node else "l"
         tmp = node.getParent()
         left_son = node.getLeft()
         node.setLeft(left_son.getRight())
@@ -363,9 +369,10 @@ class AVLTreeList(object):
         left_son.setParent(tmp)
         if direction == "r":
             left_son.getParent().setRight(left_son)
-        else:
+        elif direction == "l":
             left_son.getParent().setLeft(left_son)
-        node.setParent(left_son)
+        else:
+            self.root = left_son
 
     def balanceTree(self, node, called_from):
         count = 0
@@ -464,6 +471,7 @@ class AVLTreeList(object):
                 pred.setHeight(max(h_right, h_left) + 1)
         self.size += 1
         rotations_num = 0
+        self.handleSizesHeights(node)
         if self.need_balance(node.getParent(), prev_height):
             rotations_num = self.balanceTree(node, "insert")
         self.handleSizesHeights(node)
