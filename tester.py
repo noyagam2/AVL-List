@@ -28,8 +28,9 @@ class MyTestCase(unittest.TestCase):
         my_list.insert(0, 5)
         my_list.insert(1, 2)
         my_list.insert(0, 8)
-        my_list.insert(2, 14)
         my_list.insert(2, -7)
+        my_list.insert(2, 14)
+
 
     def test_first_last(self):
         my_list = avl_template_new.AVLTreeList()
@@ -60,13 +61,17 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(int(my_list.retrieve(2).getValue()), 14, "Error in 5th insert/retrieve")
         self.assertEqual(1, rotation_num)
 
-        rotation_num = my_list.insert(5, 25)
-        self.assertEqual(int(my_list.retrieve(5).getValue()), 25, "Error in 6th insert/retrieve")
+        rotation_num = my_list.insert(3, 12)
+        self.assertEqual(int(my_list.retrieve(3).getValue()), 12, "Error in 5th insert")
         self.assertEqual(1, rotation_num)
 
-        rotation_num = my_list.insert(6, -13)
-        self.assertEqual(int(my_list.retrieve(6).getValue()), -13, "Error in 7th insert/retrieve")
-        self.assertEqual(1, rotation_num)
+        # rotation_num = my_list.insert(5, 25)
+        # self.assertEqual(int(my_list.retrieve(5).getValue()), 25, "Error in 6th insert/retrieve")
+        # self.assertEqual(1, rotation_num)
+        #
+        # rotation_num = my_list.insert(6, -13)
+        # self.assertEqual(int(my_list.retrieve(6).getValue()), -13, "Error in 7th insert/retrieve")
+        # self.assertEqual(1, rotation_num)
 
     def test_search_delete(self):
         my_list = avl_template_new.AVLTreeList()

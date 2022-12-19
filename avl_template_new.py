@@ -207,7 +207,7 @@ class AVLTreeList(object):
             return self.last_item.right
         if node.right.height == -1:
             father = node.parent
-            while father.right.equals(node):
+            while father.right is node:
                 father = father.parent
                 node = node.parent
             return father
@@ -297,6 +297,10 @@ class AVLTreeList(object):
             right_son.getParent().setLeft(right_son)
         else:
             self.root = right_son
+        node.setHeight(max(node.getLeft().getHeight(),node.getRight().getHeight())+1)
+        right_son.setHeight(max(right_son.getLeft().getHeight(), right_son.getRight().getHeight()) + 1)
+        node.setSize(node.getLeft().getSize() + node.getRight().getSize() + 1)
+        right_son.setSize(right_son.getLeft().getSize() + right_son.getRight().getSize() + 1)
 
     def rightThenLeftRotation(self, node):
         """
@@ -341,6 +345,7 @@ class AVLTreeList(object):
         self.leftRotation(left_son)
         self.rightRotation(node)
 
+
     def rightRotation(self, node):
         """
         Handles the rotation where a node Balance Factor is +2, and it's left son's
@@ -373,6 +378,11 @@ class AVLTreeList(object):
             left_son.getParent().setLeft(left_son)
         else:
             self.root = left_son
+        node.setHeight(max(node.getLeft().getHeight(), node.getRight().getHeight()) + 1)
+        left_son.setHeight(max(left_son.getLeft().getHeight(), left_son.getRight().getHeight()) + 1)
+        node.setSize(node.getLeft().getSize() + node.getRight().getSize() + 1)
+        left_son.setSize(left_son.getLeft().getSize() + left_son.getRight().getSize() + 1)
+
 
     def balanceTree(self, node, called_from):
         count = 0
@@ -459,22 +469,16 @@ class AVLTreeList(object):
             if current_i.getLeft().isRealNode() == False:
                 prev_height = current_i.computeHeight()
                 current_i.setLeft(node)
-                h_right = current_i.getLeft().getHeight()
-                h_left = current_i.getRight().getHeight()
-                current_i.setHeight(max(h_right, h_left) + 1)
             else:
                 pred = self.predecessor(current_i)
                 prev_height = pred.computeHeight()
                 pred.setRight(node)
-                h_right = pred.getLeft().getHeight()
-                h_left = pred.getRight().getHeight()
-                pred.setHeight(max(h_right, h_left) + 1)
         self.size += 1
         rotations_num = 0
         self.handleSizesHeights(node)
         if self.need_balance(node.getParent(), prev_height):
             rotations_num = self.balanceTree(node, "insert")
-        self.handleSizesHeights(node)
+            self.handleSizesHeights(node)
         return rotations_num
 
     """deletes the i'th item in the list
@@ -487,12 +491,12 @@ class AVLTreeList(object):
     """
 
     def deleteNodeHasOneChild(self, node):
-        if node.getRight().isRealnode():
+        if node.getRight().isRealNode():
             node.getParent().setRight(node.getRight())
             node.setRight(None)
             node.setParent(None)
         else:
-            node.getParent().setLeft(node.getleft())
+            node.getParent().setLeft(node.getLeft())
             node.setLeft(None)
             node.setParent(None)
 
@@ -517,7 +521,7 @@ class AVLTreeList(object):
         start_balance = self.successor(node).getParent()
         if node.isLeaf():
             node.initVirtualValues()
-        elif node.getLeft().isRealnode() and node.getRight().isRealNode():
+        elif node.getLeft().isRealNode() and node.getRight().isRealNode():
             self.deleteNodeHasTwoChildren(node)
         else:  # only have one child
             self.deleteNodeHasOneChild(node)
@@ -605,7 +609,7 @@ class AVLTreeList(object):
     def search(self, val):
         node = self.first_item
         count = 0
-        while node.isRealNode() and node.getValue != val:
+        while node.isRealNode() and node.getValue() != val:
             count += 1
             node = self.successor(node)
         return count if node.isRealNode() else -1
