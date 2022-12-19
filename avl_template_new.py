@@ -164,6 +164,16 @@ class AVLNode(object):
     def computeHeight(self):
         return max(self.getLeft().getHeight(), self.getRight().getHeight()) + 1
 
+    def updateHeight(self):
+        self.setHeight(self.computeHeight())
+
+    def updateSize(self):
+        self.setSize(self.left.size + self.right.size + 1)
+
+    def updateMySizeHeight(self):
+        self.updateHeight()
+        self.updateSize()
+
 
 """
 A class implementing the ADT list, using an AVL tree.
@@ -297,10 +307,10 @@ class AVLTreeList(object):
             right_son.getParent().setLeft(right_son)
         else:
             self.root = right_son
-        node.setHeight(max(node.getLeft().getHeight(),node.getRight().getHeight())+1)
-        right_son.setHeight(max(right_son.getLeft().getHeight(), right_son.getRight().getHeight()) + 1)
-        node.setSize(node.getLeft().getSize() + node.getRight().getSize() + 1)
-        right_son.setSize(right_son.getLeft().getSize() + right_son.getRight().getSize() + 1)
+
+        node.updateMySizeHeight()
+        right_son.updateMySizeHeight()
+
 
     def rightThenLeftRotation(self, node):
         """
@@ -345,7 +355,6 @@ class AVLTreeList(object):
         self.leftRotation(left_son)
         self.rightRotation(node)
 
-
     def rightRotation(self, node):
         """
         Handles the rotation where a node Balance Factor is +2, and it's left son's
@@ -378,11 +387,8 @@ class AVLTreeList(object):
             left_son.getParent().setLeft(left_son)
         else:
             self.root = left_son
-        node.setHeight(max(node.getLeft().getHeight(), node.getRight().getHeight()) + 1)
-        left_son.setHeight(max(left_son.getLeft().getHeight(), left_son.getRight().getHeight()) + 1)
-        node.setSize(node.getLeft().getSize() + node.getRight().getSize() + 1)
-        left_son.setSize(left_son.getLeft().getSize() + left_son.getRight().getSize() + 1)
-
+        node.updateMySizeHeight()
+        left_son.updateMySizeHeight()
 
     def balanceTree(self, node, called_from):
         count = 0
@@ -415,10 +421,7 @@ class AVLTreeList(object):
 
     def handleSizesHeights(self, node):
         while node is not None:
-            h_right = node.getLeft().getHeight()
-            h_left = node.getRight().getHeight()
-            node.setHeight(max(h_right, h_left) + 1)
-            node.setSize(node.getLeft().getSize() + node.getRight().getSize() + 1)
+            node.updateMySizeHeight()
             node = node.getParent()
 
     def insertFirstNode(self, node):
@@ -490,19 +493,27 @@ class AVLTreeList(object):
     @returns: the number of rebalancing operation due to AVL rebalancing
     """
 
-    def deleteNodeHasOneChild(self, node):
+    def deleteLessThenTwo(self, node):
         if node.getRight().isRealNode():
             node.getParent().setRight(node.getRight())
             node.setRight(None)
             node.setParent(None)
         else:
-            node.getParent().setLeft(node.getLeft())
-            node.setLeft(None)
-            node.setParent(None)
+            parent = node.getParent()
+            virtual = AVLNode("")
+            virtual.initVirtualValues()
+            if parent.getRight() is node:
+                parent.setRight(virtual)
+            else:
+                parent.setLeft(virtual)
+        # else:
+        #     node.getParent().setLeft(node.getLeft())
+        #     node.setLeft(None)
+        #     node.setParent(None)
 
     def deleteNodeHasTwoChildren(self, node):
         successor = self.successor(node)
-        self.deleteNodeHasOneChild(successor)
+        self.deleteLessThenTwo(successor)
         successor.setRight(node.getRight())
         successor.setLeft(node.getLeft())
         successor.setParent(node.getParent())
@@ -512,21 +523,20 @@ class AVLTreeList(object):
         else:
             node.getParent().setleft(successor)
         node.setParent(None)
-        node.setRight(None)
-        node.setLeft(None)
-
+        node.right = None
+        node.left = None
 
     def delete(self, i):
         node = self.retrieve(i)
-        start_balance = self.successor(node).getParent()
-        if node.isLeaf():
-            node.initVirtualValues()
-        elif node.getLeft().isRealNode() and node.getRight().isRealNode():
+        start_balance = self.successor(node)
+        if node.getLeft().isRealNode() and node.getRight().isRealNode():
             self.deleteNodeHasTwoChildren(node)
-        else:  # only have one child
-            self.deleteNodeHasOneChild(node)
+        else:
+            self.deleteLessThenTwo(node)
+        start_balance.updateMySizeHeight()
         rotations_num = self.balanceTree(start_balance, "delete")
         self.handleSizesHeights(start_balance)
+        self.size -= 1
         return rotations_num
 
     """returns the value of the first item in the list

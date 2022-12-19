@@ -80,10 +80,16 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(int(my_list.search(-7)), 3, "Error 2 in search")
 
         rotation_num = my_list.delete(3)
-        self.assertEquals(rotation_num, -1)
+        self.assertEqual(int(rotation_num), 0)
         self.assertEqual(int(my_list.length()), 4, "error in delete")
         self.assertEqual(int(my_list.retrieve(3).getValue()), 2, " error in delete")
         self.assertEqual(int(my_list.search(-7)), -1, "Error 3 in search/delete")
+
+        rotation_num = my_list.delete(0)
+        self.assertEqual(int(rotation_num), 1)
+        self.assertEqual(int(my_list.length()), 3, "error in delete")
+        self.assertEqual(int(my_list.retrieve(0).getValue()), 5, " error in delete")
+        self.assertEqual(int(my_list.search(8)), -1, "Error 3 in search/delete")
 
     def test_list_to_array(self):
         my_list = avl_template_new.AVLTreeList()
