@@ -311,7 +311,6 @@ class AVLTreeList(object):
         node.updateMySizeHeight()
         right_son.updateMySizeHeight()
 
-
     def rightThenLeftRotation(self, node):
         """
         Handles the rotation where a node Balance Factor is -2, and it's right son's
@@ -373,14 +372,14 @@ class AVLTreeList(object):
         :type node: AVLNode
         """
         direction = "N"
-        tmp = node.getParent()
-        if tmp is not None:
-            direction = "r" if tmp.getRight() is node else "l"
-        tmp = node.getParent()
+        parent_of_node = node.getParent()
+        if parent_of_node is not None:
+            direction = "r" if parent_of_node.getRight() is node else "l"
+        parent_of_node = node.getParent()
         left_son = node.getLeft()
         node.setLeft(left_son.getRight())
         left_son.setRight(node)
-        left_son.setParent(tmp)
+        left_son.setParent(parent_of_node)
         if direction == "r":
             left_son.getParent().setRight(left_son)
         elif direction == "l":
@@ -390,33 +389,42 @@ class AVLTreeList(object):
         node.updateMySizeHeight()
         left_son.updateMySizeHeight()
 
+    def makeRotation(self, parent, BFparent, BFnode):
+        if BFparent == 2:
+            if BFnode == 1 or BFnode == 0:
+                self.rightRotation(parent)
+            elif BFnode == -1:
+                self.leftThenRightRotation(parent)
+            return 1
+
+        elif BFparent == -2:
+            if BFnode == 1:
+                self.rightThenLeftRotation(parent)
+            elif BFnode == -1 or BFnode == 0:
+                self.leftRotation(parent)
+            return 1
+        return 0
+
+
     def balanceTree(self, node, called_from):
         count = 0
+        if node is self.getRoot():
+            parent = node
+            if node.getRight().isRealNode():
+                son = node.getRight()
+            else:
+                son = node.getLeft()
+            BFparent = node.getLeft().getHeight() - parent.getRight().getHeight()
+            BFnode = son.getLeft().getHeight() - son.getRight().getHeight()
+            return self.makeRotation(parent, BFparent, BFnode)
         while node.getParent() is not None:
             parent = node.getParent()
             BFparent = parent.getLeft().getHeight() - parent.getRight().getHeight()
             BFnode = node.getLeft().getHeight() - node.getRight().getHeight()
-            if BFparent == 2:
-                if BFnode == 1 or BFnode == 0:
-                    self.rightRotation(parent)
-                    count += 1
-                elif BFnode == -1:
-                    self.leftThenRightRotation(parent)
-                    count += 1
-                if called_from == "insert":
-                    return count
-            elif BFparent == -2:
-                if BFnode == 1:
-                    self.rightThenLeftRotation(parent)
-                    count += 1
-                elif BFnode == -1 or BFnode == 0:
-                    self.leftRotation(parent)
-                    count += 1
-                if called_from == "insert":
-                    return count
-
+            count += self.makeRotation(parent, BFparent, BFnode)
+            if count == 1 and called_from == "insert":
+                return count
             node = parent
-
         return count
 
     def handleSizesHeights(self, node):
@@ -528,6 +536,10 @@ class AVLTreeList(object):
 
     def delete(self, i):
         node = self.retrieve(i)
+        if i ==0:
+            self.first_item =self.successor(self.first_item)
+        if i == self.size-1:
+            self.last_item = self.predecessor(self.last_item)
         start_balance = self.successor(node)
         if node.getLeft().isRealNode() and node.getRight().isRealNode():
             self.deleteNodeHasTwoChildren(node)
