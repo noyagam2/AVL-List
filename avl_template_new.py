@@ -188,11 +188,21 @@ class AVLTreeList(object):
 
     def __init__(self):
         self.size = 0
-        root = AVLNode("")
-        root.initVirtualValues()
-        self.root = root
-        self.first_item = root
-        self.last_item = root
+        self.root = None
+        self.first_item = None
+        self.last_item = None
+
+    def __repr__(self):
+        out = ""
+        for row in self.printree(self.root):
+            out = out + row + "\n"
+        return out
+
+    def append(self, val):
+        self.insert(self.length(), val)
+
+    def getTreeHeight(self):
+        return self.root.height
 
     # add your fields here
 
@@ -259,6 +269,14 @@ class AVLTreeList(object):
     """
 
     def retrieve(self, i):
+        if i >= self.size:
+            return None
+        node = self.retrieve_node(i)
+        if node is not None:
+            return node.getValue()
+        return None
+
+    def retrieve_node(self, i):
         node = self.getRoot()
         if not node.isRealNode():  # list is empty
             return None
@@ -405,7 +423,6 @@ class AVLTreeList(object):
             return 1
         return 0
 
-
     def balanceTree(self, node, called_from):
         count = 0
         if node is self.getRoot():
@@ -414,7 +431,7 @@ class AVLTreeList(object):
                 son = node.getRight()
             else:
                 son = node.getLeft()
-            BFparent = node.getLeft().getHeight() - parent.getRight().getHeight()
+            BFparent = node.getLeft().getHeight() - node.getRight().getHeight()
             BFnode = son.getLeft().getHeight() - son.getRight().getHeight()
             return self.makeRotation(parent, BFparent, BFnode)
         while node.getParent() is not None:
@@ -476,7 +493,7 @@ class AVLTreeList(object):
             self.first_item.setLeft(node)
             self.first_item = node
         else:
-            current_i = self.retrieve(i)
+            current_i = self.retrieve_node(i)
             if current_i.getLeft().isRealNode() == False:
                 prev_height = current_i.computeHeight()
                 current_i.setLeft(node)
@@ -491,15 +508,6 @@ class AVLTreeList(object):
             rotations_num = self.balanceTree(node, "insert")
             self.handleSizesHeights(node)
         return rotations_num
-
-    """deletes the i'th item in the list
-
-    @type i: int
-    @pre: 0 <= i < self.length()
-    @param i: The intended index in the list to be deleted
-    @rtype: int
-    @returns: the number of rebalancing operation due to AVL rebalancing
-    """
 
     def deleteLessThenTwo(self, node):
         if node.getRight().isRealNode():
@@ -534,11 +542,28 @@ class AVLTreeList(object):
         node.right = None
         node.left = None
 
+    """deletes the i'th item in the list
+
+      @type i: int
+      @pre: 0 <= i < self.length()
+      @param i: The intended index in the list to be deleted
+      @rtype: int
+      @returns: the number of rebalancing operation due to AVL rebalancing
+      """
+
     def delete(self, i):
-        node = self.retrieve(i)
-        if i ==0:
-            self.first_item =self.successor(self.first_item)
-        if i == self.size-1:
+        if i >= self.size:
+            return -1
+        node = self.retrieve_node(i)
+        if self.size == 1:
+            self.root = None
+            self.size =0
+            self.first_item = None
+            self.last_item = None
+            return 0
+        if i == 0:
+            self.first_item = self.successor(self.first_item)
+        if i == self.size - 1:
             self.last_item = self.predecessor(self.last_item)
         start_balance = self.successor(node)
         if node.getLeft().isRealNode() and node.getRight().isRealNode():
@@ -558,7 +583,9 @@ class AVLTreeList(object):
     """
 
     def first(self):
-        return self.first_item
+        if self.size == 0:
+            return None
+        return self.first_item.getValue()
 
     """returns the value of the last item in the list
 
@@ -567,7 +594,9 @@ class AVLTreeList(object):
     """
 
     def last(self):
-        return self.last_item
+        if self.size == 0:
+            return None
+        return self.last_item.getValue()
 
     """returns an array representing list 
 
@@ -643,6 +672,74 @@ class AVLTreeList(object):
     """
 
     def getRoot(self):
-        if not self.root.isRealNode():
-            return None
         return self.root
+
+    ########### printing the tree ###########
+
+    def printree(self, t, bykey=False):
+        """Print a textual representation of t
+        bykey=True: show keys instead of values"""
+        # for row in trepr(t, bykey):
+        #        print(row)
+        return self.trepr(t, bykey)
+
+    def trepr(self, t, bykey=False):
+        """Return a list of textual representations of the levels in t
+        bykey=True: show keys instead of values"""
+        if t.getHeight() == -1:
+            return ["#"]
+
+        thistr = str(t.value)
+
+        return self.conc(self.trepr(t.left, bykey), thistr, self.trepr(t.right, bykey))
+
+    def conc(self, left, root, right):
+        """Return a concatenation of textual represantations of
+        a root node, its left node, and its right node
+        root is a string, and left and right are lists of strings"""
+
+        lwid = len(left[-1])
+        rwid = len(right[-1])
+        rootwid = len(root)
+
+        result = [(lwid + 1) * " " + root + (rwid + 1) * " "]
+
+        ls = self.leftspace(left[0])
+        rs = self.rightspace(right[0])
+        result.append(ls * " " + (lwid - ls) * "_" + "/" + rootwid * " " + "\\" + rs * "_" + (rwid - rs) * " ")
+
+        for i in range(max(len(left), len(right))):
+            row = ""
+            if i < len(left):
+                row += left[i]
+            else:
+                row += lwid * " "
+
+            row += (rootwid + 2) * " "
+
+            if i < len(right):
+                row += right[i]
+            else:
+                row += rwid * " "
+
+            result.append(row)
+
+        return result
+
+    def leftspace(self, row):
+        """helper for conc"""
+        # row is the first row of a left node
+        # returns the index of where the second whitespace starts
+        i = len(row) - 1
+        while row[i] == " ":
+            i -= 1
+        return i + 1
+
+    def rightspace(self, row):
+        """helper for conc"""
+        # row is the first row of a right node
+        # returns the index of where the first whitespace ends
+        i = 0
+        while row[i] == " ":
+            i += 1
+        return i
