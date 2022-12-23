@@ -526,7 +526,9 @@ class AVLTreeList(object):
 
     def deleteLessThenTwo(self, node):
         if node.isLeaf():
+            parent = node.getParent()
             self.deleteNodeIsLeaf(node)
+            return parent
         else:
             parent_of_node = node.getParent()
             direction = "N"
@@ -535,27 +537,33 @@ class AVLTreeList(object):
             son = node.getRight() if node.getRight().isRealNode() else node.getLeft()
             if direction == "r":
                 node.getParent().setRight(son)
+                return parent_of_node
             elif direction == "l":
                 node.getParent().setLeft(son)
+                return parent_of_node
             else:
                 self.root = son
                 self.root.setParent(None)
                 son.makeNodeLeaf()
+                return self.root
 
     def deleteNodeHasTwoChildren(self, node):
         successor = self.successor(node)
+        balance_start = successor if successor.getParent() is node else successor.getParent()
         self.deleteLessThenTwo(successor)
         successor.setRight(node.getRight())
         successor.setLeft(node.getLeft())
         successor.setParent(node.getParent())
         if node is self.root:
             self.root = successor
+            return balance_start
         else:
             direction = "r" if node.getParent().getRight() is node else "l"
             if direction == "r":
                 node.getParent().setRight(successor)
             else:
                 node.getParent().setLeft(successor)
+        return successor
 
     """deletes the i'th item in the list
 
@@ -570,7 +578,6 @@ class AVLTreeList(object):
         if i >= self.size:
             return -1
         node = self.retrieve_node(i)
-        parent = node.getParent()
         if self.size == 1:
             self.root = None
             self.size = 0
@@ -580,19 +587,12 @@ class AVLTreeList(object):
         if i == 0:  # delete first item
             self.first_item = self.successor(self.first_item)
         if i == self.size - 1:  # delete last item
-            start_balance = self.predecessor(node)
             self.last_item = self.predecessor(self.last_item)
-        else:
-            start_balance = self.successor(node)
-            if node is self.root:  # delete root
-                parent = start_balance.parent
-                if parent is node:
-                    parent = start_balance
         if node.getLeft().isRealNode() and node.getRight().isRealNode():
-            self.deleteNodeHasTwoChildren(node)
+            start_balance  = self.deleteNodeHasTwoChildren(node)
         else:
-            self.deleteLessThenTwo(node)
-        self.handleSizesHeights(parent)
+            start_balance  = self.deleteLessThenTwo(node)
+        self.handleSizesHeights(start_balance)
         rotations_num = self.balanceTree(start_balance, "delete")
         self.handleSizesHeights(start_balance)
         self.size -= 1
