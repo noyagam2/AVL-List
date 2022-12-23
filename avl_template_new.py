@@ -48,7 +48,7 @@ class AVLNode(object):
         self.height = 0
 
     def isLeaf(self):
-        return self.getHeight == 0
+        return self.height == 0
 
     """returns the left child
     @rtype: AVLNode
@@ -246,10 +246,10 @@ class AVLTreeList(object):
         :returns the predecessor of given node in the tree
         """
         if node is self.first_item:
-            return self.last_item.left
+            return self.first_item_item.left
         if node.left.height == -1:
             father = node.parent
-            while father.left.equals(node):
+            while father.left is node:
                 father = father.parent
                 node = node.parent
             return father
@@ -426,6 +426,8 @@ class AVLTreeList(object):
     def balanceTree(self, node, called_from):
         count = 0
         if node is self.getRoot():
+            if node.isLeaf():
+                return 0
             parent = node
             if node.getRight().isRealNode():
                 son = node.getRight()
@@ -438,6 +440,11 @@ class AVLTreeList(object):
             parent = node.getParent()
             BFparent = parent.getLeft().getHeight() - parent.getRight().getHeight()
             BFnode = node.getLeft().getHeight() - node.getRight().getHeight()
+            if BFnode == -2 or BFnode == 2:  # Handle the case when node is AVL criminal and not parent
+                parent = node
+                node = node.getRight() if BFnode == -2 else node.getLeft()
+                BFparent = BFnode
+                BFnode = node.getLeft().getHeight() - node.getRight().getHeight()
             count += self.makeRotation(parent, BFparent, BFnode)
             if count == 1 and called_from == "insert":
                 return count
@@ -509,23 +516,31 @@ class AVLTreeList(object):
             self.handleSizesHeights(node)
         return rotations_num
 
-    def deleteLessThenTwo(self, node):
-        if node.getRight().isRealNode():
-            node.getParent().setRight(node.getRight())
-            node.setRight(None)
-            node.setParent(None)
+    def deleteNodeIsLeaf(self, node):
+        virtual = AVLNode("")
+        virtual.initVirtualValues()
+        if node.getParent().getRight() is node:
+            node.getParent().setRight(virtual)
         else:
-            parent = node.getParent()
-            virtual = AVLNode("")
-            virtual.initVirtualValues()
-            if parent.getRight() is node:
-                parent.setRight(virtual)
+            node.getParent().setLeft(virtual)
+
+    def deleteLessThenTwo(self, node):
+        if node.isLeaf():
+            self.deleteNodeIsLeaf(node)
+        else:
+            parent_of_node = node.getParent()
+            direction = "N"
+            if parent_of_node is not None:
+                direction = "r" if parent_of_node.getRight() is node else "l"
+            son = node.getRight() if node.getRight().isRealNode() else node.getLeft()
+            if direction == "r":
+                node.getParent().setRight(son)
+            elif direction == "l":
+                node.getParent().setLeft(son)
             else:
-                parent.setLeft(virtual)
-        # else:
-        #     node.getParent().setLeft(node.getLeft())
-        #     node.setLeft(None)
-        #     node.setParent(None)
+                self.root = son
+                self.root.setParent(None)
+                son.makeNodeLeaf()
 
     def deleteNodeHasTwoChildren(self, node):
         successor = self.successor(node)
@@ -533,14 +548,14 @@ class AVLTreeList(object):
         successor.setRight(node.getRight())
         successor.setLeft(node.getLeft())
         successor.setParent(node.getParent())
-        direction = "r" if node.getParent().getRight() is node else "l"
-        if direction == "r":
-            node.getParent().setRight(successor)
+        if node is self.root:
+            self.root = successor
         else:
-            node.getParent().setleft(successor)
-        node.setParent(None)
-        node.right = None
-        node.left = None
+            direction = "r" if node.getParent().getRight() is node else "l"
+            if direction == "r":
+                node.getParent().setRight(successor)
+            else:
+                node.getParent().setLeft(successor)
 
     """deletes the i'th item in the list
 
@@ -555,22 +570,29 @@ class AVLTreeList(object):
         if i >= self.size:
             return -1
         node = self.retrieve_node(i)
+        parent = node.getParent()
         if self.size == 1:
             self.root = None
-            self.size =0
+            self.size = 0
             self.first_item = None
             self.last_item = None
             return 0
-        if i == 0:
+        if i == 0:  # delete first item
             self.first_item = self.successor(self.first_item)
-        if i == self.size - 1:
+        if i == self.size - 1:  # delete last item
+            start_balance = self.predecessor(node)
             self.last_item = self.predecessor(self.last_item)
-        start_balance = self.successor(node)
+        else:
+            start_balance = self.successor(node)
+            if node is self.root:  # delete root
+                parent = start_balance.parent
+                if parent is node:
+                    parent = start_balance
         if node.getLeft().isRealNode() and node.getRight().isRealNode():
             self.deleteNodeHasTwoChildren(node)
         else:
             self.deleteLessThenTwo(node)
-        start_balance.updateMySizeHeight()
+        self.handleSizesHeights(parent)
         rotations_num = self.balanceTree(start_balance, "delete")
         self.handleSizesHeights(start_balance)
         self.size -= 1
