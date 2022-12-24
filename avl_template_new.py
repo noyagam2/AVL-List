@@ -411,16 +411,18 @@ class AVLTreeList(object):
         if BFparent == 2:
             if BFnode == 1 or BFnode == 0:
                 self.rightRotation(parent)
-            elif BFnode == -1:
+                return 1
+            if BFnode == -1:
                 self.leftThenRightRotation(parent)
-            return 1
+                return 2
 
         elif BFparent == -2:
             if BFnode == 1:
                 self.rightThenLeftRotation(parent)
-            elif BFnode == -1 or BFnode == 0:
+                return 2
+            if BFnode == -1 or BFnode == 0:
                 self.leftRotation(parent)
-            return 1
+                return 1
         return 0
 
     def balanceTree(self, node, called_from):
@@ -437,6 +439,7 @@ class AVLTreeList(object):
             BFnode = son.getLeft().getHeight() - son.getRight().getHeight()
             return self.makeRotation(parent, BFparent, BFnode)
         while node.getParent() is not None:
+            node.updateMySizeHeight()
             parent = node.getParent()
             BFparent = parent.getLeft().getHeight() - parent.getRight().getHeight()
             BFnode = node.getLeft().getHeight() - node.getRight().getHeight()
@@ -563,7 +566,7 @@ class AVLTreeList(object):
                 node.getParent().setRight(successor)
             else:
                 node.getParent().setLeft(successor)
-        return successor
+        return balance_start
 
     """deletes the i'th item in the list
 
@@ -578,6 +581,8 @@ class AVLTreeList(object):
         if i >= self.size:
             return -1
         node = self.retrieve_node(i)
+        if node is None:
+            return -1
         if self.size == 1:
             self.root = None
             self.size = 0
@@ -589,9 +594,9 @@ class AVLTreeList(object):
         if i == self.size - 1:  # delete last item
             self.last_item = self.predecessor(self.last_item)
         if node.getLeft().isRealNode() and node.getRight().isRealNode():
-            start_balance  = self.deleteNodeHasTwoChildren(node)
+            start_balance = self.deleteNodeHasTwoChildren(node)
         else:
-            start_balance  = self.deleteLessThenTwo(node)
+            start_balance = self.deleteLessThenTwo(node)
         self.handleSizesHeights(start_balance)
         rotations_num = self.balanceTree(start_balance, "delete")
         self.handleSizesHeights(start_balance)
@@ -680,6 +685,8 @@ class AVLTreeList(object):
     """
 
     def search(self, val):
+        if self.size == 0:
+            return -1
         node = self.first_item
         count = 0
         while node.isRealNode() and node.getValue() != val:
