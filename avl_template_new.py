@@ -6,6 +6,7 @@
 
 
 """A class represnting a node in an AVL tree"""
+import random
 
 
 class AVLNode(object):
@@ -246,7 +247,7 @@ class AVLTreeList(object):
         :returns the predecessor of given node in the tree
         """
         if node is self.first_item:
-            return self.first_item_item.left
+            return self.first_item.left
         if node.left.height == -1:
             father = node.parent
             while father.left is node:
@@ -647,6 +648,50 @@ class AVLTreeList(object):
     def length(self):
         return self.size
 
+    def replace_vals(self, array, k, m):
+        """
+        Replaces 2 values in array
+        :param array: the array to replace values in
+        :param k: the position of the first item to replace in the array
+        :param m: the position of the second item to replace in the array
+        :return:
+        """
+        temp = array[k]
+        array[k] = array[m]
+        array[m] = temp
+
+    def lomuto_partition(self, array, l, r):
+        """
+        Implementation of lomuto's partition
+        :param array: the array to partition
+        :param l: left index
+        :param r: right index
+        :return: the position of pivot
+        """
+        ran = random.Random()
+        pivot = ran.randint(l, r)
+        self.replace_vals(array, pivot, r)
+
+        i = l - 1
+        for j in range(l, r):
+            if array[j] < array[r]:
+                i += 1
+                self.replace_vals(array, i, j)
+        self.replace_vals(array, i + 1, r)
+        return i + 1
+
+    def rand_quicksort(self, array, l, r):
+        """
+        A recursive, random quicksort for arrays based on lomuto's partition
+        :param array: array to sort
+        :param l: left bound
+        :param r: right bound
+        """
+        if l < r:
+            p = self.lomuto_partition(array, l, r)
+            self.rand_quicksort(array, l, p - 1)
+            self.rand_quicksort(array, p + 1, r)
+
     """sort the info values of the list
 
     @rtype: list
@@ -654,7 +699,13 @@ class AVLTreeList(object):
     """
 
     def sort(self):
-        return None
+        sorted_tree_list = AVLTreeList()
+        array = self.listToArray()
+        n = len(array)
+        self.rand_quicksort(array, 0, n - 1)
+        for i in range(n):
+            sorted_tree_list.insert(0, array[n - i])
+        return sorted_tree_list
 
     """permute the info values of the list
 
@@ -663,7 +714,20 @@ class AVLTreeList(object):
     """
 
     def permutation(self):
-        return None
+        permutated_tree = AVLTreeList()
+        array = self.listToArray()
+        rand = random.Random()
+
+        while self.size > 0:
+            i = rand.randint(0, self.size - 1)
+            val = self.retrieve(i)
+            permutated_tree.insert(0, val)
+            self.delete(i)
+
+        for i in range(len(array)):  # reverse the list to its original state
+            self.insert(0, array[len(array) - 1])
+
+        return permutated_tree
 
     """concatenates lst to self
 
