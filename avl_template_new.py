@@ -704,7 +704,7 @@ class AVLTreeList(object):
         n = len(array)
         self.rand_quicksort(array, 0, n - 1)
         for i in range(n):
-            sorted_tree_list.insert(0, array[n - i])
+            sorted_tree_list.insert(0, array[n - 1 - i])
         return sorted_tree_list
 
     """permute the info values of the list
