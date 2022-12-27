@@ -234,7 +234,7 @@ class AVLTreeList(object):
     def retrieve(self, i):
         if i >= self.size:
             return None
-        node = self.retrieve_node(i)
+        node = self.retrieveNode(i)
         if node is not None:
             return node.getValue()
         return None
@@ -265,7 +265,7 @@ class AVLTreeList(object):
             self.first_item.setLeft(node)
             self.first_item = node
         else:
-            current_i = self.retrieve_node(i)
+            current_i = self.retrieveNode(i)
             if current_i.getLeft().isRealNode() == False:
                 prev_height = current_i.computeHeight()
                 current_i.setLeft(node)
@@ -276,7 +276,7 @@ class AVLTreeList(object):
         self.size += 1
         rotations_num = 0
         self.handleSizesHeights(node)
-        if self.need_balance(node.getParent(), prev_height):
+        if self.needBalance(node.getParent(), prev_height):
             rotations_num = self.balanceTree(node, "insert")
             self.handleSizesHeights(node)
         return rotations_num
@@ -295,7 +295,7 @@ class AVLTreeList(object):
         # O(log(n)). Second update sizes and heights, O(log(n)). Overall, O(log(n)) in worst case.
         if i >= self.size:
             return -1
-        node = self.retrieve_node(i)
+        node = self.retrieveNode(i)
         if node is None:
             return -1
         if self.size == 1:
@@ -372,7 +372,7 @@ class AVLTreeList(object):
         sorted_tree_list = AVLTreeList()
         array = self.listToArray()
         n = len(array)
-        self.rand_quicksort(array, 0, n - 1)
+        self.randQuicksort(array, 0, n - 1)
         for i in range(n):
             sorted_tree_list.insert(0, array[n - 1 - i])
         return sorted_tree_list
@@ -486,7 +486,7 @@ class AVLTreeList(object):
             return node
 
     # ----------------------- retrieve helper methods -----------------------
-    def retrieve_node(self, i):
+    def retrieveNode(self, i):
         """
         returns the node in the i'th position in the list in complexity O(log n)
         @pre: 0 <= i < self.length()
@@ -710,7 +710,7 @@ class AVLTreeList(object):
         self.first_item = node
         self.size = 1
 
-    def need_balance(self, parent, prev_height):
+    def needBalance(self, parent, prev_height):
         """checks if the tree needs to be balanced after an insert, works in O(1)
         :param parent: the parent of the inserted node
         :type parent: AVLNode
@@ -789,7 +789,7 @@ class AVLTreeList(object):
         return balance_start
 
     # ----------------------- sort helper methods -----------------------
-    def replace_vals(self, array, k, m):
+    def replaceVals(self, array, k, m):
         """
         Replaces 2 values in array in indexes k and m, works in place and in O(1)
         :param array: the array to replace values in
@@ -802,7 +802,7 @@ class AVLTreeList(object):
         array[k] = array[m]
         array[m] = temp
 
-    def lomuto_partition(self, array, l, r):
+    def lomutoPartition(self, array, l, r):
         """
         Implementation of lomuto's partition, works in place in O(n)
         :param array: the array to partition
@@ -815,17 +815,17 @@ class AVLTreeList(object):
         """
         ran = random.Random()
         pivot = ran.randint(l, r)
-        self.replace_vals(array, pivot, r)
+        self.replaceVals(array, pivot, r)
 
         i = l - 1
         for j in range(l, r):
             if array[j] < array[r]:
                 i += 1
-                self.replace_vals(array, i, j)
-        self.replace_vals(array, i + 1, r)
+                self.replaceVals(array, i, j)
+        self.replaceVals(array, i + 1, r)
         return i + 1
 
-    def rand_quicksort(self, array, l, r):
+    def randQuicksort(self, array, l, r):
         """
         A recursive, random quicksort for arrays based on lomuto's partition,
         works in O(n^2) in the worst case, but in O(nlogn) in the average case
@@ -836,9 +836,9 @@ class AVLTreeList(object):
         :type r: int
         """
         if l < r:
-            p = self.lomuto_partition(array, l, r)
-            self.rand_quicksort(array, l, p - 1)
-            self.rand_quicksort(array, p + 1, r)
+            p = self.lomutoPartition(array, l, r)
+            self.randQuicksort(array, l, p - 1)
+            self.randQuicksort(array, p + 1, r)
 
     # -----------------------printing the tree-----------------------
 
