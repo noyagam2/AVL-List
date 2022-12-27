@@ -804,7 +804,7 @@ class AVLTreeList(object):
 
     def lomuto_partition(self, array, l, r):
         """
-        Implementation of lomuto's partition, works in place
+        Implementation of lomuto's partition, works in place in O(n)
         :param array: the array to partition
         :param l: left index
         :type l: int
