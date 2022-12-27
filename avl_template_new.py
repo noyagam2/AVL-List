@@ -188,7 +188,8 @@ class AVLTreeList(object):
 
     def __init__(self):
         self.size = 0
-        self.root = None
+        self.root = AVLNode("")
+        self.root.initVirtualValues()
         self.first_item = None
         self.last_item = None
 
@@ -199,7 +200,9 @@ class AVLTreeList(object):
         return out
 
     def append(self, val):
-        self.insert(self.length(), val)
+        numOfBalanceOps = self.insert(self.length(), val)
+        return numOfBalanceOps
+
 
     def getTreeHeight(self):
         return self.root.height
@@ -246,7 +249,7 @@ class AVLTreeList(object):
         :returns the predecessor of given node in the tree
         """
         if node is self.first_item:
-            return self.first_item_item.left
+            return self.first_item.left
         if node.left.height == -1:
             father = node.parent
             while father.left is node:
@@ -635,8 +638,8 @@ class AVLTreeList(object):
         array = []
         node = self.first_item
         for i in range(self.size):
-            array.append(str(node))
-
+            array.append(node.getValue())
+            node = self.successor(node)
         return array
 
     """returns the size of the list
@@ -674,7 +677,86 @@ class AVLTreeList(object):
     """
 
     def concat(self, lst):
-        return None
+        delta = abs(self.getTreeHeight() - lst.getTreeHeight())
+
+        if self.size == 0 and lst.size != 0:
+            self.size = lst.size
+            self.root = lst.root
+            self.first_item = lst.first_item
+            self.last_item = lst.last_item
+            return delta
+        if lst.size == 0 and self.size != 0:
+            return delta
+        if self.size == 0 and lst.size == 0:
+            return delta
+
+        totalSize = self.size + lst.size
+
+        if self.size == 1:
+            lst.insert(0, self.getRoot().getValue())
+            self.size = lst.size
+            self.root = lst.root
+            self.first_item = lst.first_item
+            self.last_item = lst.last_item
+            return delta
+
+        if lst.size == 1:
+            self.insert(self.size, lst.getRoot().getValue())
+            return delta
+
+        if self.getTreeHeight() <= lst.getTreeHeight():
+            x = AVLNode(self.last_item.getValue())
+            self.delete(self.size - 1)
+            x.setLeft(self.getRoot())
+            x.setHeight(self.getTreeHeight() + 1)
+            x.setSize(self.size + 1)
+            self.size += 1
+            self.root = x
+            self.last_item = x
+            b = lst.getRoot()
+            while b.getHeight() > self.getTreeHeight() - 1:
+                b = b.getLeft()
+            if b == lst.getRoot():
+                x.setRight(b)
+                x.setSize(totalSize)
+                self.size = totalSize
+                self.root = x
+                self.last_item = lst.last_item
+                return delta
+
+            c = b.getParent()
+            c.setLeft(x)
+            x.setRight(b)
+
+            self.root = lst.root
+            self.size = totalSize
+            self.balanceTree(x, "concat")
+            self.handleSizesHeights(b)
+            self.last_item = lst.last_item
+
+        else:
+            x = self.last_item
+            self.delete(self.size - 1)
+            x.setRight(lst.getRoot())
+
+            x.setHeight(lst.getTreeHeight() + 1)  #
+            x.setSize(lst.size + 1)  #
+
+            b = self.getRoot()
+            while b.getHeight() > lst.getTreeHeight():
+                b = b.getRight()
+            if b == self.getRoot():
+                x.setLeft(b)
+                return delta
+            c = b.getParent()
+            c.setRight(x)
+            x.setLeft(b)
+            self.size = totalSize
+            self.balanceTree(x, "concat")
+            self.handleSizesHeights(b)
+            self.last_item = lst.last_item
+
+        return delta
 
     """searches for a *value* in the list
 
@@ -772,3 +854,18 @@ class AVLTreeList(object):
         while row[i] == " ":
             i += 1
         return i
+
+
+
+T1 = AVLTreeList()
+T2 = AVLTreeList()
+for i in range(10):
+    T1.append(i)
+for i in range(5):
+    T2.append(i)
+
+print(T1)
+print(T2)
+T2.concat(T1)
+print(T2)
+
