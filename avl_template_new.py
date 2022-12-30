@@ -126,8 +126,6 @@ class AVLNode(object):
             return False
         return True
 
-    def __str__(self) -> str:
-        return str(self.value)
 
     # ----------------------- AVLNode private methods -----------------------#
 
@@ -865,85 +863,3 @@ class AVLTreeList(object):
             self.randQuicksort(array, l, p - 1)
             self.randQuicksort(array, p + 1, r)
 
-    # -----------------------printing the tree-----------------------
-
-    def printree(self, t, bykey=False):
-        """Print a textual representation of t
-        bykey=True: show keys instead of values"""
-        # for row in trepr(t, bykey):
-        #        print(row)
-        return self.trepr(t, bykey)
-
-    def trepr(self, t, bykey=False):
-        """Return a list of textual representations of the levels in t
-        bykey=True: show keys instead of values"""
-        if t.getHeight() == -1:
-            return ["#"]
-
-        thistr = str(t.value)
-
-        return self.conc(self.trepr(t.left, bykey), thistr, self.trepr(t.right, bykey))
-
-    def conc(self, left, root, right):
-        """Return a concatenation of textual represantations of
-        a root node, its left node, and its right node
-        root is a string, and left and right are lists of strings"""
-
-        lwid = len(left[-1])
-        rwid = len(right[-1])
-        rootwid = len(root)
-
-        result = [(lwid + 1) * " " + root + (rwid + 1) * " "]
-
-        ls = self.leftspace(left[0])
-        rs = self.rightspace(right[0])
-        result.append(ls * " " + (lwid - ls) * "_" + "/" + rootwid * " " + "\\" + rs * "_" + (rwid - rs) * " ")
-
-        for i in range(max(len(left), len(right))):
-            row = ""
-            if i < len(left):
-                row += left[i]
-            else:
-                row += lwid * " "
-
-            row += (rootwid + 2) * " "
-
-            if i < len(right):
-                row += right[i]
-            else:
-                row += rwid * " "
-
-            result.append(row)
-
-        return result
-
-    def leftspace(self, row):
-        """helper for conc"""
-        # row is the first row of a left node
-        # returns the index of where the second whitespace starts
-        i = len(row) - 1
-        while row[i] == " ":
-            i -= 1
-        return i + 1
-
-    def rightspace(self, row):
-        """helper for conc"""
-        # row is the first row of a right node
-        # returns the index of where the first whitespace ends
-        i = 0
-        while row[i] == " ":
-            i += 1
-        return i
-
-    def __repr__(self):
-        out = ""
-        for row in self.printree(self.root):
-            out = out + row + "\n"
-        return out
-
-    # -----------------------testing the tree-----------------------
-    def append(self, val):
-        self.insert(self.length(), val)
-
-    def getTreeHeight(self):
-        return self.root.height
