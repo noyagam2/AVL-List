@@ -385,11 +385,7 @@ class AVLTreeList(object):
 
     def sort(self):
         sorted_tree_list = AVLTreeList()
-        array = []
-        node = self.first_item
-        for i in range(self.size):
-            array.append(node)
-            node = self.successor(node)  # O(log(n))
+        array = self.listToArray() # O(n)
         n = len(array)
         self.randQuicksort(array, 0, n - 1)  # O(nlog(n)) in average case
         for i in range(n):
@@ -404,11 +400,7 @@ class AVLTreeList(object):
 
     def permutation(self):
         permutated_tree = AVLTreeList()
-        array = []
-        node = self.first_item
-        for i in range(self.size):
-            array.append(node)
-            node = self.successor(node)  # O(log(n))
+        array = self.listToArray() # O(n)
         rand = random.Random()
 
         while self.size > 0:
