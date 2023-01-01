@@ -126,7 +126,6 @@ class AVLNode(object):
             return False
         return True
 
-
     # ----------------------- AVLNode private methods -----------------------#
 
     def initVirtualValues(self):
@@ -212,7 +211,6 @@ class AVLTreeList(object):
         self.first_item = None
         self.last_item = None
 
-
     def __repr__(self):
         out = ""
         for row in self.printree(self.root):
@@ -222,7 +220,6 @@ class AVLTreeList(object):
     def append(self, val):
         numOfBalanceOps = self.insert(self.length(), val)
         return numOfBalanceOps
-
 
     def getTreeHeight(self):
         return self.root.height
@@ -367,7 +364,7 @@ class AVLTreeList(object):
         array = []
         node = self.first_item
         for i in range(self.size):
-            array.append(str(node))
+            array.append(node.getValue())
             node = self.successor(node)
 
         return array
@@ -905,8 +902,8 @@ class AVLTreeList(object):
             else:
                 node.getParent().setLeft(successor)
         return balance_start
-    
-     # ----------------------- sort helper methods -----------------------
+
+    # ----------------------- sort helper methods -----------------------
     def replaceVals(self, array, k, m):
         """
         Replaces 2 values in array in indexes k and m, works in place and in O(1)
@@ -919,7 +916,6 @@ class AVLTreeList(object):
         temp = array[k]
         array[k] = array[m]
         array[m] = temp
-
 
     def lomutoPartition(self, array, l, r):
         """
@@ -943,7 +939,7 @@ class AVLTreeList(object):
                 self.replaceVals(array, i, j)
         self.replaceVals(array, i + 1, r)
         return i + 1
-    
+
     def randQuicksort(self, array, l, r):
         """
         A recursive, random quicksort for arrays based on lomuto's partition,
@@ -1042,10 +1038,9 @@ class AVLTreeList(object):
 
     def getTreeHeight(self):
         return self.root.height
-   
 
 
-   
 
-  
+
+
 
