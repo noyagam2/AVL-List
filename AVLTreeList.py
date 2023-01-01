@@ -1,9 +1,10 @@
-# username1 - noyagam
-# id1      - 314623372
-# name1    - Noy Agam
-# username2 - orerez
-# id2      - 318970951
-# name2    - Or Erez
+# username1 - orerez
+# id1      - 318970951
+# name1    - Or Erez
+# username2 - noyagam
+# id2      - 314623372
+# name2    - Noy Agam
+
 
 
 """A class represnting a node in an AVL tree"""
