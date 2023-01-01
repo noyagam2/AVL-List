@@ -207,9 +207,25 @@ class AVLTreeList(object):
 
     def __init__(self):
         self.size = 0
-        self.root = None
+        self.root = AVLNode("")
+        self.root.initVirtualValues()
         self.first_item = None
         self.last_item = None
+
+
+    def __repr__(self):
+        out = ""
+        for row in self.printree(self.root):
+            out = out + row + "\n"
+        return out
+
+    def append(self, val):
+        numOfBalanceOps = self.insert(self.length(), val)
+        return numOfBalanceOps
+
+
+    def getTreeHeight(self):
+        return self.root.height
 
     # add your fields here
 
@@ -811,6 +827,272 @@ class AVLTreeList(object):
                 node.getParent().setLeft(successor)
         return balance_start
 
+    """deletes the i'th item in the list
+
+      @type i: int
+      @pre: 0 <= i < self.length()
+      @param i: The intended index in the list to be deleted
+      @rtype: int
+      @returns: the number of rebalancing operation due to AVL rebalancing
+      """
+
+    def delete(self, i):
+        if i >= self.size:
+            return -1
+        node = self.retrieve_node(i)
+        if node is None:
+            return -1
+        if self.size == 1:
+            self.root = None
+            self.size = 0
+            self.first_item = None
+            self.last_item = None
+            return 0
+        if i == 0:  # delete first item
+            self.first_item = self.successor(self.first_item)
+        if i == self.size - 1:  # delete last item
+            self.last_item = self.predecessor(self.last_item)
+        if node.getLeft().isRealNode() and node.getRight().isRealNode():
+            start_balance = self.deleteNodeHasTwoChildren(node)
+        else:
+            start_balance = self.deleteLessThenTwo(node)
+        self.handleSizesHeights(start_balance)
+        rotations_num = self.balanceTree(start_balance, "delete")
+        self.handleSizesHeights(start_balance)
+        self.size -= 1
+        return rotations_num
+
+    """returns the value of the first item in the list
+
+    @rtype: str
+    @returns: the value of the first item, None if the list is empty
+    """
+
+    def first(self):
+        if self.size == 0:
+            return None
+        return self.first_item.getValue()
+
+    """returns the value of the last item in the list
+
+    @rtype: str
+    @returns: the value of the last item, None if the list is empty
+    """
+
+    def last(self):
+        if self.size == 0:
+            return None
+        return self.last_item.getValue()
+
+    """returns an array representing list 
+
+    @rtype: list
+    @returns: a list of strings representing the data structure
+    """
+
+    def listToArray(self):
+        array = []
+        node = self.first_item
+        for i in range(self.size):
+            array.append(node.getValue())
+            node = self.successor(node)
+        return array
+
+    """returns the size of the list
+
+    @rtype: int
+    @returns: the size of the list"""
+
+    def length(self):
+        return self.size
+
+    """sort the info values of the list
+
+    @rtype: list
+    @returns: an AVLTreeList where the values are sorted by the info of the original list.
+    """
+
+    def sort(self):
+        return None
+
+    """permute the info values of the list
+
+    @rtype: list
+    @returns: an AVLTreeList where the values are permuted randomly by the info of the original list. ##Use Randomness
+    """
+
+    def permutation(self):
+        return None
+
+    """concatenates lst to self
+
+    @type lst: AVLTreeList
+    @param lst: a list to be concatenated after self
+    @rtype: int
+    @returns: the absolute value of the difference between the height of the AVL trees joined
+    """
+
+    def concat(self, lst):
+        delta = abs(self.getTreeHeight() - lst.getTreeHeight())
+
+        if self.size == 0 and lst.size != 0:
+            self.size = lst.size
+            self.root = lst.root
+            self.first_item = lst.first_item
+            self.last_item = lst.last_item
+            return delta
+        if lst.size == 0 and self.size != 0:
+            return delta
+        if self.size == 0 and lst.size == 0:
+            return delta
+
+        totalSize = self.size + lst.size
+
+        if self.size == 1:
+            lst.insert(0, self.getRoot().getValue())
+            self.size = lst.size
+            self.root = lst.root
+            self.first_item = lst.first_item
+            self.last_item = lst.last_item
+            return delta
+
+        if lst.size == 1:
+            self.insert(self.size, lst.getRoot().getValue())
+            return delta
+
+        if self.getTreeHeight() <= lst.getTreeHeight():
+            x = AVLNode(self.last_item.getValue())
+            self.delete(self.size - 1)
+            x.setLeft(self.getRoot())
+            x.setHeight(self.getTreeHeight() + 1)
+            x.setSize(self.size + 1)
+            self.size += 1
+            self.root = x
+            self.last_item = x
+            b = lst.getRoot()
+            while b.getHeight() > self.getTreeHeight() - 1:
+                b = b.getLeft()
+            if b == lst.getRoot():
+                x.setRight(b)
+                x.setSize(totalSize)
+                self.size = totalSize
+                self.root = x
+                self.last_item = lst.last_item
+                return delta
+
+            c = b.getParent()
+            c.setLeft(x)
+            x.setRight(b)
+
+            self.root = lst.root
+            self.size = totalSize
+            self.balanceTree(x, "concat")
+            self.handleSizesHeights(b)
+            self.last_item = lst.last_item
+
+        else:
+            x = self.last_item
+            self.delete(self.size - 1)
+            x.setRight(lst.getRoot())
+
+            x.setHeight(lst.getTreeHeight() + 1)  #
+            x.setSize(lst.size + 1)  #
+
+            b = self.getRoot()
+            while b.getHeight() > lst.getTreeHeight():
+                b = b.getRight()
+            if b == self.getRoot():
+                x.setLeft(b)
+                return delta
+            c = b.getParent()
+            c.setRight(x)
+            x.setLeft(b)
+            self.size = totalSize
+            self.balanceTree(x, "concat")
+            self.handleSizesHeights(b)
+            self.last_item = lst.last_item
+
+        return delta
+
+    """searches for a *value* in the list
+
+    @type val: str
+    @param val: a value to be searched
+    @rtype: int
+    @returns: the first index that contains val, -1 if not found.
+    """
+
+    def search(self, val):
+        if self.size == 0:
+            return -1
+        node = self.first_item
+        count = 0
+        while node.isRealNode() and node.getValue() != val:
+            count += 1
+            node = self.successor(node)
+        return count if node.isRealNode() else -1
+
+    """returns the root of the tree representing the list
+
+    @rtype: AVLNode
+    @returns: the root, None if the list is empty
+    """
+
+    def getRoot(self):
+        return self.root
+
+    ########### printing the tree ###########
+
+    def printree(self, t, bykey=False):
+        """Print a textual representation of t
+        bykey=True: show keys instead of values"""
+        # for row in trepr(t, bykey):
+        #        print(row)
+        return self.trepr(t, bykey)
+
+    def trepr(self, t, bykey=False):
+        """Return a list of textual representations of the levels in t
+        bykey=True: show keys instead of values"""
+        if t.getHeight() == -1:
+            return ["#"]
+
+        thistr = str(t.value)
+
+        return self.conc(self.trepr(t.left, bykey), thistr, self.trepr(t.right, bykey))
+
+    def conc(self, left, root, right):
+        """Return a concatenation of textual represantations of
+        a root node, its left node, and its right node
+        root is a string, and left and right are lists of strings"""
+
+        lwid = len(left[-1])
+        rwid = len(right[-1])
+        rootwid = len(root)
+
+        result = [(lwid + 1) * " " + root + (rwid + 1) * " "]
+
+        ls = self.leftspace(left[0])
+        rs = self.rightspace(right[0])
+        result.append(ls * " " + (lwid - ls) * "_" + "/" + rootwid * " " + "\\" + rs * "_" + (rwid - rs) * " ")
+
+        for i in range(max(len(left), len(right))):
+            row = ""
+            if i < len(left):
+                row += left[i]
+            else:
+                row += lwid * " "
+
+            row += (rootwid + 2) * " "
+
+            if i < len(right):
+                row += right[i]
+            else:
+                row += rwid * " "
+
+            result.append(row)
+
+        return result
+
     # ----------------------- sort helper methods -----------------------
     def replaceVals(self, array, k, m):
         """
@@ -824,6 +1106,7 @@ class AVLTreeList(object):
         temp = array[k]
         array[k] = array[m]
         array[m] = temp
+
 
     def lomutoPartition(self, array, l, r):
         """
@@ -848,6 +1131,16 @@ class AVLTreeList(object):
         self.replaceVals(array, i + 1, r)
         return i + 1
 
+
+    def rightspace(self, row):
+        """helper for conc"""
+        # row is the first row of a right node
+        # returns the index of where the first whitespace ends
+        i = 0
+        while row[i] == " ":
+            i += 1
+        return i
+
     def randQuicksort(self, array, l, r):
         """
         A recursive, random quicksort for arrays based on lomuto's partition,
@@ -862,4 +1155,5 @@ class AVLTreeList(object):
             p = self.lomutoPartition(array, l, r)
             self.randQuicksort(array, l, p - 1)
             self.randQuicksort(array, p + 1, r)
+
 
