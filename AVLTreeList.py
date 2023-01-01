@@ -1,6 +1,6 @@
-# username - complete info
-# id1      - complete info
-# name1    - complete info
+# username - Orerez
+# id1      - 314623372
+# name1    - Noy Agam
 # id2      - 318970951
 # name2    - Or Erez
 
@@ -750,7 +750,7 @@ class AVLTreeList(object):
         :param node: the node to delete
         :type node: AVLNode
         :return: the number of rotations needed to balance the tree after the deletion
-        :rtype: int"""
+        """
         virtual = AVLNode("")
         virtual.initVirtualValues()
         if node.getParent().getRight() is node:
@@ -764,7 +764,7 @@ class AVLTreeList(object):
         :param node: the node to delete
         :type node: AVLNode
         :return: the number of rotations needed to balance the tree after the deletion
-        :rtype: int"""
+        :rtype: AVLNode"""
         if node.isLeaf():
             parent = node.getParent()
             self.deleteNodeIsLeaf(node)
@@ -793,7 +793,7 @@ class AVLTreeList(object):
         :param node: the node to delete
         :type node: AVLNode
         :return: the number of rotations needed to balance the tree after the deletion
-        :rtype: int"""
+        :rtype: AVLNode"""
         successor = self.successor(node)
         balance_start = successor if successor.getParent() is node else successor.getParent()
         self.deleteLessThenTwo(successor)
