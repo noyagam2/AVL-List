@@ -944,7 +944,7 @@ class AVLTreeList(object):
         self.replaceVals(array, i + 1, r)
         return i + 1
     
-      def randQuicksort(self, array, l, r):
+    def randQuicksort(self, array, l, r):
         """
         A recursive, random quicksort for arrays based on lomuto's partition,
         works in O(n^2) in the worst case, but in O(nlogn) in the average case
@@ -1010,8 +1010,17 @@ class AVLTreeList(object):
             result.append(row)
 
         return result
-    
-     def rightspace(self, row):
+
+    def leftspace(self, row):
+        """helper for conc"""
+        # row is the first row of a left node
+        # returns the index of where the second whitespace starts
+        i = len(row) - 1
+        while row[i] == " ":
+            i -= 1
+        return i + 1
+
+    def rightspace(self, row):
         """helper for conc"""
         # row is the first row of a right node
         # returns the index of where the first whitespace ends
@@ -1020,6 +1029,19 @@ class AVLTreeList(object):
             i += 1
         return i
 
+    def __repr__(self):
+        out = ""
+        for row in self.printree(self.root):
+            out = out + row + "\n"
+        return out
+
+        # -----------------------testing the tree-----------------------
+
+    def append(self, val):
+        self.insert(self.length(), val)
+
+    def getTreeHeight(self):
+        return self.root.height
    
 
 
