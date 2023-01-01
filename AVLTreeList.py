@@ -207,9 +207,25 @@ class AVLTreeList(object):
 
     def __init__(self):
         self.size = 0
-        self.root = None
+        self.root = AVLNode("")
+        self.root.initVirtualValues()
         self.first_item = None
         self.last_item = None
+
+
+    def __repr__(self):
+        out = ""
+        for row in self.printree(self.root):
+            out = out + row + "\n"
+        return out
+
+    def append(self, val):
+        numOfBalanceOps = self.insert(self.length(), val)
+        return numOfBalanceOps
+
+
+    def getTreeHeight(self):
+        return self.root.height
 
     # add your fields here
 
@@ -418,7 +434,86 @@ class AVLTreeList(object):
     """
 
     def concat(self, lst):
-        return None
+        delta = abs(self.getTreeHeight() - lst.getTreeHeight())
+
+        if self.size == 0 and lst.size != 0:
+            self.size = lst.size
+            self.root = lst.root
+            self.first_item = lst.first_item
+            self.last_item = lst.last_item
+            return delta
+        if lst.size == 0 and self.size != 0:
+            return delta
+        if self.size == 0 and lst.size == 0:
+            return delta
+
+        totalSize = self.size + lst.size
+
+        if self.size == 1:
+            lst.insert(0, self.getRoot().getValue())
+            self.size = lst.size
+            self.root = lst.root
+            self.first_item = lst.first_item
+            self.last_item = lst.last_item
+            return delta
+
+        if lst.size == 1:
+            self.insert(self.size, lst.getRoot().getValue())
+            return delta
+
+        if self.getTreeHeight() <= lst.getTreeHeight():
+            x = AVLNode(self.last_item.getValue())
+            self.delete(self.size - 1)
+            x.setLeft(self.getRoot())
+            x.setHeight(self.getTreeHeight() + 1)
+            x.setSize(self.size + 1)
+            self.size += 1
+            self.root = x
+            self.last_item = x
+            b = lst.getRoot()
+            while b.getHeight() > self.getTreeHeight() - 1:
+                b = b.getLeft()
+            if b == lst.getRoot():
+                x.setRight(b)
+                x.setSize(totalSize)
+                self.size = totalSize
+                self.root = x
+                self.last_item = lst.last_item
+                return delta
+
+            c = b.getParent()
+            c.setLeft(x)
+            x.setRight(b)
+
+            self.root = lst.root
+            self.size = totalSize
+            self.balanceTree(x, "concat")
+            self.handleSizesHeights(b)
+            self.last_item = lst.last_item
+
+        else:
+            x = self.last_item
+            self.delete(self.size - 1)
+            x.setRight(lst.getRoot())
+
+            x.setHeight(lst.getTreeHeight() + 1)  #
+            x.setSize(lst.size + 1)  #
+
+            b = self.getRoot()
+            while b.getHeight() > lst.getTreeHeight():
+                b = b.getRight()
+            if b == self.getRoot():
+                x.setLeft(b)
+                return delta
+            c = b.getParent()
+            c.setRight(x)
+            x.setLeft(b)
+            self.size = totalSize
+            self.balanceTree(x, "concat")
+            self.handleSizesHeights(b)
+            self.last_item = lst.last_item
+
+        return delta
 
     """searches for a *value* in the list
 
@@ -810,8 +905,8 @@ class AVLTreeList(object):
             else:
                 node.getParent().setLeft(successor)
         return balance_start
-
-    # ----------------------- sort helper methods -----------------------
+    
+     # ----------------------- sort helper methods -----------------------
     def replaceVals(self, array, k, m):
         """
         Replaces 2 values in array in indexes k and m, works in place and in O(1)
@@ -824,6 +919,7 @@ class AVLTreeList(object):
         temp = array[k]
         array[k] = array[m]
         array[m] = temp
+
 
     def lomutoPartition(self, array, l, r):
         """
@@ -847,8 +943,8 @@ class AVLTreeList(object):
                 self.replaceVals(array, i, j)
         self.replaceVals(array, i + 1, r)
         return i + 1
-
-    def randQuicksort(self, array, l, r):
+    
+      def randQuicksort(self, array, l, r):
         """
         A recursive, random quicksort for arrays based on lomuto's partition,
         works in O(n^2) in the worst case, but in O(nlogn) in the average case
@@ -862,4 +958,72 @@ class AVLTreeList(object):
             p = self.lomutoPartition(array, l, r)
             self.randQuicksort(array, l, p - 1)
             self.randQuicksort(array, p + 1, r)
+
+    ########### printing the tree ###########
+
+    def printree(self, t, bykey=False):
+        """Print a textual representation of t
+        bykey=True: show keys instead of values"""
+        # for row in trepr(t, bykey):
+        #        print(row)
+        return self.trepr(t, bykey)
+
+    def trepr(self, t, bykey=False):
+        """Return a list of textual representations of the levels in t
+        bykey=True: show keys instead of values"""
+        if t.getHeight() == -1:
+            return ["#"]
+
+        thistr = str(t.value)
+
+        return self.conc(self.trepr(t.left, bykey), thistr, self.trepr(t.right, bykey))
+
+    def conc(self, left, root, right):
+        """Return a concatenation of textual represantations of
+        a root node, its left node, and its right node
+        root is a string, and left and right are lists of strings"""
+
+        lwid = len(left[-1])
+        rwid = len(right[-1])
+        rootwid = len(root)
+
+        result = [(lwid + 1) * " " + root + (rwid + 1) * " "]
+
+        ls = self.leftspace(left[0])
+        rs = self.rightspace(right[0])
+        result.append(ls * " " + (lwid - ls) * "_" + "/" + rootwid * " " + "\\" + rs * "_" + (rwid - rs) * " ")
+
+        for i in range(max(len(left), len(right))):
+            row = ""
+            if i < len(left):
+                row += left[i]
+            else:
+                row += lwid * " "
+
+            row += (rootwid + 2) * " "
+
+            if i < len(right):
+                row += right[i]
+            else:
+                row += rwid * " "
+
+            result.append(row)
+
+        return result
+    
+     def rightspace(self, row):
+        """helper for conc"""
+        # row is the first row of a right node
+        # returns the index of where the first whitespace ends
+        i = 0
+        while row[i] == " ":
+            i += 1
+        return i
+
+   
+
+
+   
+
+  
 
