@@ -6,7 +6,6 @@
 # name2    - Noy Agam
 
 
-
 """A class represnting a node in an AVL tree"""
 import random
 
@@ -253,31 +252,31 @@ class AVLTreeList(object):
     def insert(self, i, val):
         node = AVLNode(val)
         node.makeNodeLeaf()
-        if self.size == 0:
+        if self.size == 0:  # if the list is empty
             self.insertFirstNode(node)
             return 0
-        if i == self.size:
+        if i == self.size:  # if the insertion is in the end of the list
             prev_height = self.last_item.computeHeight()
             self.last_item.setRight(node)
-            self.last_item = node
+            self.last_item = node  # update the last item of the list
         elif i == 0:
             prev_height = self.first_item.computeHeight()
             self.first_item.setLeft(node)
-            self.first_item = node
+            self.first_item = node  # update the first item of the list
         else:
             current_i = self.retrieveNode(i)
-            if current_i.getLeft().isRealNode() == False:
+            if current_i.getLeft().isRealNode() == False:  # if node in index i doesn't have a left son
                 prev_height = current_i.computeHeight()
                 current_i.setLeft(node)
-            else:
+            else:  # if node in index i has a left son
                 pred = self.predecessor(current_i)
                 prev_height = pred.computeHeight()
                 pred.setRight(node)
         self.size += 1
         rotations_num = 0
-        self.handleSizesHeights(node)
+        self.handleSizesHeights(node)  # update sizes and heights after insertion
         if self.needBalance(node.getParent(), prev_height):
-            rotations_num = self.balanceTree(node, "insert")
+            rotations_num = self.balanceTree(node, "insert")  # balance the tree if needed
             self.handleSizesHeights(node)
         return rotations_num
 
@@ -293,12 +292,12 @@ class AVLTreeList(object):
     def delete(self, i):
         # If node has 2 children, O(log(n)). First update sizes and heights, O(log(n)), then balance the tree,
         # O(log(n)). Second update sizes and heights, O(log(n)). Overall, O(log(n)) in worst case.
-        if i >= self.size:
+        if i >= self.size:  # there is no node in the given index
             return -1
         node = self.retrieveNode(i)
         if node is None:
             return -1
-        if self.size == 1:
+        if self.size == 1:  # only one item in the list
             self.root = None
             self.size = 0
             self.first_item = None
@@ -316,7 +315,7 @@ class AVLTreeList(object):
         rotations_num = self.balanceTree(start_balance, "delete")
         self.handleSizesHeights(start_balance)
 
-        self.size -= 1
+        self.size -= 1  # update size
         return rotations_num
 
     """returns the value of the first item in the list
@@ -372,7 +371,7 @@ class AVLTreeList(object):
 
     def sort(self):
         sorted_tree_list = AVLTreeList()
-        array = self.listToArray() # O(n)
+        array = self.listToArray()  # O(n)
         n = len(array)
         self.randQuicksort(array, 0, n - 1)  # O(nlog(n)) in average case
         for i in range(n):
@@ -387,11 +386,11 @@ class AVLTreeList(object):
 
     def permutation(self):
         permutated_tree = AVLTreeList()
-        array = self.listToArray() # O(n)
+        array = self.listToArray()  # O(n)
         rand = random.Random()
 
         while self.size > 0:
-            i = rand.randint(0, self.size - 1)
+            i = rand.randint(0, self.size - 1)  # random index
             val = self.retrieve(i)
             permutated_tree.insert(0, val)
             self.delete(i)
@@ -412,20 +411,20 @@ class AVLTreeList(object):
     def concat(self, lst):
         delta = abs(self.getTreeHeight() - lst.getTreeHeight())
 
-        if self.size == 0 and lst.size != 0:
+        if self.size == 0 and lst.size != 0:  # self list is empty
             self.size = lst.size
             self.root = lst.root
             self.first_item = lst.first_item
             self.last_item = lst.last_item
             return delta
-        if lst.size == 0 and self.size != 0:
+        if lst.size == 0 and self.size != 0:  # given list is empty
             return delta
-        if self.size == 0 and lst.size == 0:
+        if self.size == 0 and lst.size == 0:  # both lists atr empty
             return delta
 
         totalSize = self.size + lst.size
 
-        if self.size == 1:
+        if self.size == 1:  # self list has only one item
             lst.insert(0, self.getRoot().getValue())
             self.size = lst.size
             self.root = lst.root
@@ -433,11 +432,11 @@ class AVLTreeList(object):
             self.last_item = lst.last_item
             return delta
 
-        if lst.size == 1:
+        if lst.size == 1:  # given list has only one item
             self.insert(self.size, lst.getRoot().getValue())
             return delta
 
-        if self.getTreeHeight() <= lst.getTreeHeight():
+        if self.getTreeHeight() <= lst.getTreeHeight():  # same algorythm like we saw in class
             x = AVLNode(self.last_item.getValue())
             self.delete(self.size - 1)
             x.setLeft(self.getRoot())
@@ -578,9 +577,9 @@ class AVLTreeList(object):
         node = self.getRoot()
         if not node.isRealNode():  # list is empty
             return None
-        if i == self.size - 1:
+        if i == self.size - 1:  # last index
             return self.last_item
-        elif i == 0:
+        elif i == 0:  # first index
             return self.first_item
         while i >= 0:
             if i == node.getLeft().getSize():
