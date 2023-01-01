@@ -1040,6 +1040,60 @@ class AVLTreeList(object):
 
     def getRoot(self):
         return self.root
+    
+    
+     # ----------------------- sort helper methods -----------------------
+    def replaceVals(self, array, k, m):
+        """
+        Replaces 2 values in array in indexes k and m, works in place and in O(1)
+        :param array: the array to replace values in
+        :param k: the position of the first item to replace in the array
+        :type k: int
+        :param m: the position of the second item to replace in the array
+        :type m: int
+        """
+        temp = array[k]
+        array[k] = array[m]
+        array[m] = temp
+
+
+    def lomutoPartition(self, array, l, r):
+        """
+        Implementation of lomuto's partition, works in place in O(n)
+        :param array: the array to partition
+        :param l: left index
+        :type l: int
+        :param r: right index
+        :type r: int
+        :return: the position of pivot
+        :rtype: int
+        """
+        ran = random.Random()
+        pivot = ran.randint(l, r)
+        self.replaceVals(array, pivot, r)
+
+        i = l - 1
+        for j in range(l, r):
+            if array[j] < array[r]:
+                i += 1
+                self.replaceVals(array, i, j)
+        self.replaceVals(array, i + 1, r)
+        return i + 1
+    
+      def randQuicksort(self, array, l, r):
+        """
+        A recursive, random quicksort for arrays based on lomuto's partition,
+        works in O(n^2) in the worst case, but in O(nlogn) in the average case
+        :param array: array to sort
+        :param l: left bound
+        :type l: int
+        :param r: right bound
+        :type r: int
+        """
+        if l < r:
+            p = self.lomutoPartition(array, l, r)
+            self.randQuicksort(array, l, p - 1)
+            self.randQuicksort(array, p + 1, r)
 
     ########### printing the tree ###########
 
@@ -1092,47 +1146,8 @@ class AVLTreeList(object):
             result.append(row)
 
         return result
-
-    # ----------------------- sort helper methods -----------------------
-    def replaceVals(self, array, k, m):
-        """
-        Replaces 2 values in array in indexes k and m, works in place and in O(1)
-        :param array: the array to replace values in
-        :param k: the position of the first item to replace in the array
-        :type k: int
-        :param m: the position of the second item to replace in the array
-        :type m: int
-        """
-        temp = array[k]
-        array[k] = array[m]
-        array[m] = temp
-
-
-    def lomutoPartition(self, array, l, r):
-        """
-        Implementation of lomuto's partition, works in place in O(n)
-        :param array: the array to partition
-        :param l: left index
-        :type l: int
-        :param r: right index
-        :type r: int
-        :return: the position of pivot
-        :rtype: int
-        """
-        ran = random.Random()
-        pivot = ran.randint(l, r)
-        self.replaceVals(array, pivot, r)
-
-        i = l - 1
-        for j in range(l, r):
-            if array[j] < array[r]:
-                i += 1
-                self.replaceVals(array, i, j)
-        self.replaceVals(array, i + 1, r)
-        return i + 1
-
-
-    def rightspace(self, row):
+    
+     def rightspace(self, row):
         """helper for conc"""
         # row is the first row of a right node
         # returns the index of where the first whitespace ends
@@ -1141,19 +1156,10 @@ class AVLTreeList(object):
             i += 1
         return i
 
-    def randQuicksort(self, array, l, r):
-        """
-        A recursive, random quicksort for arrays based on lomuto's partition,
-        works in O(n^2) in the worst case, but in O(nlogn) in the average case
-        :param array: array to sort
-        :param l: left bound
-        :type l: int
-        :param r: right bound
-        :type r: int
-        """
-        if l < r:
-            p = self.lomutoPartition(array, l, r)
-            self.randQuicksort(array, l, p - 1)
-            self.randQuicksort(array, p + 1, r)
+   
 
+
+   
+
+  
 
